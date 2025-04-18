@@ -1,11 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SettingsManager : MonoBehaviour
+public class SettingsMenuManager : MonoBehaviour
 {
     
     public GameObject settingsMenu;
-    public GameObject pauseMenu;
 
     public Slider fovSlider;
     public Text fovValueText;
@@ -43,19 +44,23 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
+    public void OnSettingsButtonClick()
+    {
+            settingsMenu.SetActive(true);
+    }
+
     public void OnBackButtonClick()
     {
             settingsMenu.SetActive(false);
-            pauseMenu.SetActive(true);
     }
 
     public void OnResetButtonClick()
     {
-        fovSlider.value = 60; // Reset to default FOV
+        fovSlider.value = 60;
         mainCamera.fieldOfView = 60;
         fovValueText.text = "FOV: 60";
-        musicToggle.isOn = true; // Reset music toggle to on
-        musicSource.Play(); // Play music again
+        musicToggle.isOn = true;
+        musicSource.Play();
     }
     
 }
