@@ -12,6 +12,8 @@ public class PauseMenuManager : MonoBehaviour
 
    private bool isPaused = false;
 
+   public AudioSource audioSource;
+
 
     void Start()
     {
@@ -51,8 +53,14 @@ public class PauseMenuManager : MonoBehaviour
         PauseMenu.SetActive(false);
         SceneManager.LoadScene("Menu");
     }
+    public void OnZTHButtonClick()
+    {
+        audioSource.Play();
+    }
 
-    private void PauseGame()
+
+
+    public void PauseGame()
     {
         isPaused = true;
         PauseMenu.SetActive(true);
@@ -62,7 +70,7 @@ public class PauseMenuManager : MonoBehaviour
         Cursor.visible = true;
     }
 
-    private void ResumeGame()
+    public void ResumeGame()
     {
         isPaused = false;
         PauseMenu.SetActive(false);

@@ -3,6 +3,10 @@ using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
+    
+    public GameObject settingsMenu;
+    public GameObject pauseMenu;
+
     public Slider fovSlider;
     public Text fovValueText;
     public Camera mainCamera;
@@ -12,11 +16,11 @@ public class SettingsManager : MonoBehaviour
 
     void Start()
     {
-        // FOV
+        settingsMenu.SetActive(false);
+
         fovSlider.onValueChanged.AddListener(UpdateFOV);
         fovSlider.value = mainCamera.fieldOfView;
 
-        // Music
         musicToggle.onValueChanged.AddListener(ToggleMusic);
         musicToggle.isOn = musicSource.isPlaying;
     }
@@ -35,7 +39,24 @@ public class SettingsManager : MonoBehaviour
         }
         else
         {
-            musicSource.Pause(); // або .Stop()
+            musicSource.Pause();
         }
     }
+
+    public void OnBackButtonClick()
+    {
+        settingsMenu.SetActive(false);
+        pauseMenu.SetActive(true);
+
+    }
+
+    public void OnResetButtonClick()
+    {
+        fovSlider.value = 60; // Reset to default FOV
+        mainCamera.fieldOfView = 60;
+        fovValueText.text = "FOV: 60";
+        musicToggle.isOn = true; // Reset music toggle to on
+        musicSource.Play(); // Play music again
+    }
+    
 }
