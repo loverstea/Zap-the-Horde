@@ -28,7 +28,7 @@ public class MenuManager : MonoBehaviour
 
     public void OnTutorialButtonClick()
     {
-        SceneManager.LoadScene("TutorialScene");
+        SceneManager.LoadScene("Tutorial");
     }
 
     public void OnLevelsButtonClick()
