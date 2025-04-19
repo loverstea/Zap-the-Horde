@@ -5,37 +5,97 @@ using UnityEngine.UI;
 
 public class Towers : MonoBehaviour
 {
-    public GameObject archerTowerPrefab; // Префаб башни лучников
-    public GameObject magicTowerPrefab;  // Префаб магической башни
-    public LayerMask gridLayerMask;      // Слой для сетки (где можно размещать башни)
-    public LayerMask invalidPlacementMask; // Слой объектов, с которыми нельзя пересекаться (например, дороги или другие башни)
+    public GameObject archerTowerPrefab;
+    public GameObject magicTowerPrefab;
+    public LayerMask gridLayerMask;
+    public LayerMask invalidPlacementMask;
 
-    public List<Image> towerImages;      // Список изображений башен
-    private int selectedTowerIndex = -1; // Индекс выбранного изображения (-1, если ничего не выбрано)
+    public List<Image> towerImages;
+    private int selectedTowerIndex = -1;
 
-    private GameObject currentTower;     // Текущая башня, которую игрок перемещает
-    private Camera mainCamera;           // Камера для определения позиции мыши
+    private GameObject currentTower;
+    private Camera mainCamera;
 
-    public float cellSize = 4f;          // Размер клетки (по умолчанию 4x4)
-    public Vector3 topLeftCorner;        // Верхний левый угол карты
-    public Vector3 bottomRightCorner;    // Нижний правый угол карты
+    public float cellSize = 4f;
+    public Vector3 topLeftCorner;
+    public Vector3 bottomRightCorner;
 
-    public List<Vector3> predefinedCells; // Список сгенерированных клеток
-    public List<Vector3> occupiedCells = new List<Vector3>(); // Список занятых клеток
+    public List<Vector3> predefinedCells;
+    public List<Vector3> occupiedCells = new List<Vector3>();
 
-    private bool canPlaceTower = true;   // Можно ли установить башню
+    private bool canPlaceTower = true;
 
-    private Material originalMaterial;   // Оригинальный материал башни
+    public GameObject placementIndicatorPrefab;
+    private GameObject placementIndicator;
+
+    public Material greenTransparentMaterial;
+    public Material redTransparentMaterial;
 
     void Start()
     {
-        mainCamera = Camera.main; // Получаем основную камеру
-        GenerateCells();          // Генерируем клетки
+        mainCamera = Camera.main;
+        GenerateCells();
+
+        Collider[] roadColliders = Physics.OverlapBox(
+            (topLeftCorner + bottomRightCorner) / 2,
+            (bottomRightCorner - topLeftCorner) / 2,
+            Quaternion.identity,
+            invalidPlacementMask
+        );
+
+        foreach (Collider roadCollider in roadColliders)
+        {
+            Vector3 roadPosition = roadCollider.transform.position;
+            Vector3 nearestCell = FindNearestCell(roadPosition);
+            if (!occupiedCells.Contains(nearestCell))
+            {
+                occupiedCells.Add(nearestCell);
+            }
+        }
     }
 
     void Update()
     {
-        // Выбор башни
+        if (Input.GetKeyDown(KeyCode.Q))
+    {
+        if (currentTower != null)
+        {
+            Destroy(currentTower);
+            currentTower = null;
+        }
+
+        if (placementIndicator != null)
+        {
+            Destroy(placementIndicator);
+        }
+
+        if (selectedTowerIndex != -1)
+        {
+            ResetTowerImage(selectedTowerIndex);
+            selectedTowerIndex = -1;
+        }
+    }
+                else if (Input.GetKeyDown(KeyCode.Alpha0))
+            {
+                if (currentTower != null)
+                {
+                    Destroy(currentTower);
+                    currentTower = null;
+                }
+    
+                if (placementIndicator != null)
+                {
+                    Destroy(placementIndicator);
+                }
+    
+                if (selectedTowerIndex != -1)
+                {
+                    ResetTowerImage(selectedTowerIndex);
+                    selectedTowerIndex = -1;
+                }
+            }
+
+            
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             SelectTower(archerTowerPrefab, 0);
@@ -45,14 +105,12 @@ public class Towers : MonoBehaviour
             SelectTower(magicTowerPrefab, 1);
         }
 
-        // Перемещение башни по сетке
         if (currentTower != null)
         {
             MoveTowerToGrid();
-            CheckPlacementValidity(); // Проверяем, можно ли установить башню
+            CheckPlacementValidity();
         }
 
-        // Установка башни на клетку
         if (Input.GetMouseButtonDown(0) && currentTower != null && canPlaceTower)
         {
             PlaceTower();
@@ -63,37 +121,34 @@ public class Towers : MonoBehaviour
     {
         predefinedCells = new List<Vector3>();
 
-        // Определяем диапазоны для генерации клеток
         float minX = Mathf.Min(topLeftCorner.x, bottomRightCorner.x);
         float maxX = Mathf.Max(topLeftCorner.x, bottomRightCorner.x);
         float minZ = Mathf.Min(topLeftCorner.z, bottomRightCorner.z);
         float maxZ = Mathf.Max(topLeftCorner.z, bottomRightCorner.z);
 
-        // Генерация клеток на основе диапазонов
         for (float x = minX; x <= maxX; x += cellSize)
         {
             for (float z = maxZ; z >= minZ; z -= cellSize)
             {
                 Vector3 cellPosition = new Vector3(x, topLeftCorner.y, z);
                 predefinedCells.Add(cellPosition);
-                Debug.Log($"Сгенерирована клетка: {cellPosition}");
             }
         }
-
-        Debug.Log($"Сгенерировано {predefinedCells.Count} клеток.");
     }
 
     void MoveTowerToGrid()
     {
-        // Получаем позицию мыши в мире
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, gridLayerMask))
         {
-            // Находим ближайшую клетку
             Vector3 nearestCellPosition = FindNearestCell(hit.point);
 
-            // Устанавливаем башню в центр ближайшей клетки
             currentTower.transform.position = nearestCellPosition;
+
+            if (placementIndicator != null)
+            {
+                placementIndicator.transform.position = nearestCellPosition;
+            }
         }
     }
 
@@ -117,11 +172,9 @@ public class Towers : MonoBehaviour
 
     void CheckPlacementValidity()
     {
-        // Проверяем, пересекается ли башня с запрещёнными объектами
         Collider towerCollider = currentTower.GetComponent<Collider>();
         if (towerCollider == null)
         {
-            Debug.LogError("У текущей башни отсутствует Collider!");
             canPlaceTower = false;
             return;
         }
@@ -129,157 +182,120 @@ public class Towers : MonoBehaviour
         Vector3 boxCenter = currentTower.transform.position;
         Vector3 boxSize = towerCollider.bounds.size;
 
-        // Проверяем пересечения с объектами из слоя invalidPlacementMask
         Collider[] colliders = Physics.OverlapBox(
             boxCenter,
-            boxSize / 2f, // Половина размера для OverlapBox
+            boxSize / 2f,
             currentTower.transform.rotation,
             invalidPlacementMask
         );
 
-        Renderer renderer = currentTower.GetComponent<Renderer>();
-
-        // Проверяем, занята ли клетка
-        if (occupiedCells.Contains(boxCenter))
+        if (occupiedCells.Contains(boxCenter) || colliders.Length > 0)
         {
-            Debug.Log("Клетка уже занята!");
             canPlaceTower = false;
-            if (renderer != null)
-            {
-                renderer.material.color = new Color(1, 0, 0, 0.5f); // Красный цвет с прозрачностью
-            }
-            return;
-        }
 
-        if (colliders.Length > 0)
-        {
-            Debug.Log("Пересечение с запрещёнными объектами:");
-            foreach (Collider col in colliders)
+            if (placementIndicator != null)
             {
-                Debug.Log($"Пересечение с объектом: {col.gameObject.name}");
-            }
-            canPlaceTower = false;
-            if (renderer != null)
-            {
-                renderer.material.color = new Color(1, 0, 0, 0.5f); // Красный цвет с прозрачностью
+                Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
+                if (indicatorRenderer != null)
+                {
+                    indicatorRenderer.material = redTransparentMaterial;
+                }
             }
         }
         else
         {
             canPlaceTower = true;
-            if (renderer != null)
+
+            if (placementIndicator != null)
             {
-                renderer.material.color = new Color(0, 1, 0, 0.5f); // Зелёный цвет с прозрачностью
+                Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
+                if (indicatorRenderer != null)
+                {
+                    indicatorRenderer.material = greenTransparentMaterial;
+                }
             }
         }
     }
 
-        void PlaceTower()
+    void PlaceTower()
     {
-        // Устанавливаем башню на текущую клетку
         if (selectedTowerIndex != -1)
         {
-            ResetTowerImage(selectedTowerIndex); // Сбрасываем выделение изображения
-            selectedTowerIndex = -1;            // Сбрасываем выбор
+            ResetTowerImage(selectedTowerIndex);
+            selectedTowerIndex = -1;
         }
-    
-        // Включаем коллайдер, чтобы игроки не могли проходить сквозь башню
+
         Collider towerCollider = currentTower.GetComponent<Collider>();
         if (towerCollider != null)
         {
             towerCollider.enabled = true;
         }
-    
-        // Добавляем текущую клетку в список занятых клеток
+
         Vector3 occupiedCell = currentTower.transform.position;
         if (!occupiedCells.Contains(occupiedCell))
         {
             occupiedCells.Add(occupiedCell);
-            Debug.Log($"Клетка занята: {occupiedCell}");
         }
-    
-        // Возвращаем оригинальный материал
-        Renderer renderer = currentTower.GetComponentInChildren<Renderer>();
-        if (renderer != null)
+
+        if (placementIndicator != null)
         {
-            renderer.material = originalMaterial; // Возвращаем оригинальный материал
+            Destroy(placementIndicator);
         }
-    
-        // Сбрасываем текущую башню, чтобы больше не перемещать её
+
         currentTower = null;
     }
 
-                void SelectTower(GameObject towerPrefab, int imageIndex)
+    void SelectTower(GameObject towerPrefab, int imageIndex)
+    {
+        if (selectedTowerIndex == imageIndex)
         {
-            // Если нажали на уже выбранное изображение, сбрасываем его
-            if (selectedTowerIndex == imageIndex)
+            ResetTowerImage(imageIndex);
+            selectedTowerIndex = -1;
+            Destroy(currentTower);
+            if (placementIndicator != null)
             {
-                ResetTowerImage(imageIndex);
-                selectedTowerIndex = -1; // Сбрасываем выбор
-                Destroy(currentTower);   // Удаляем текущую башню
-                return;
+                Destroy(placementIndicator);
             }
-        
-            // Сбрасываем предыдущее выбранное изображение
-            if (selectedTowerIndex != -1)
-            {
-                ResetTowerImage(selectedTowerIndex);
-            }
-        
-            // Выделяем новое изображение
-            if (imageIndex >= 0 && imageIndex < towerImages.Count)
-            {
-                HighlightTowerImage(imageIndex);
-                selectedTowerIndex = imageIndex;
-            }
-        
-            // Удаляем текущую башню, если она уже выбрана
-            if (currentTower != null)
-            {
-                Destroy(currentTower);
-            }
-        
-            // Создаём новую башню
-            currentTower = Instantiate(towerPrefab);
-            currentTower.GetComponent<Collider>().enabled = false; // Отключаем коллайдер для чертежа
-        
-            // Сохраняем оригинальный материал и делаем башню зелёной и прозрачной
-            Renderer renderer = currentTower.GetComponentInChildren<Renderer>(); // Ищем Renderer в дочерних объектах
-            if (renderer != null)
-            {
-                originalMaterial = renderer.material;
-        
-                // Создаём временный материал для чертежа
-                Material transparentMaterial = new Material(Shader.Find("Standard"));
-                transparentMaterial.color = new Color(0, 1, 0, 0.5f); // Зелёный цвет с прозрачностью
-                transparentMaterial.SetFloat("_Mode", 3); // Устанавливаем режим прозрачности
-                transparentMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                transparentMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                transparentMaterial.SetInt("_ZWrite", 0);
-                transparentMaterial.DisableKeyword("_ALPHATEST_ON");
-                transparentMaterial.EnableKeyword("_ALPHABLEND_ON");
-                transparentMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-                transparentMaterial.renderQueue = 3000;
-        
-                renderer.material = transparentMaterial;
-            }
-            else
-            {
-                Debug.LogError("Renderer не найден на объекте башни или его дочерних объектах!");
-            }
+            return;
         }
+
+        if (selectedTowerIndex != -1)
+        {
+            ResetTowerImage(selectedTowerIndex);
+        }
+
+        if (imageIndex >= 0 && imageIndex < towerImages.Count)
+        {
+            HighlightTowerImage(imageIndex);
+            selectedTowerIndex = imageIndex;
+        }
+
+        if (currentTower != null)
+        {
+            Destroy(currentTower);
+        }
+
+        currentTower = Instantiate(towerPrefab);
+        currentTower.GetComponent<Collider>().enabled = false;
+
+        if (placementIndicator == null)
+        {
+            placementIndicator = Instantiate(placementIndicatorPrefab);
+            placementIndicator.transform.localScale = new Vector3(cellSize, 5f, cellSize);
+        }
+    }
 
     void HighlightTowerImage(int index)
     {
         Image towerImage = towerImages[index];
-        towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 230f / 255f); // Прозрачность 230
-        towerImage.rectTransform.sizeDelta = new Vector2(300, 300); // Размер 300x300
+        towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 230f / 255f);
+        towerImage.rectTransform.sizeDelta = new Vector2(300, 300);
     }
 
     void ResetTowerImage(int index)
     {
         Image towerImage = towerImages[index];
-        towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 130f / 255f); // Прозрачность 130
-        towerImage.rectTransform.sizeDelta = new Vector2(250, 250); // Размер 250x250
+        towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 130f / 255f);
+        towerImage.rectTransform.sizeDelta = new Vector2(250, 250);
     }
 }
