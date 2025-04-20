@@ -5,8 +5,15 @@ using UnityEngine.UI;
 
 public class Towers : MonoBehaviour
 {
-    public GameObject archerTowerPrefab;
-    public GameObject magicTowerPrefab;
+    public GameObject archerTowerLevel1Prefab;
+    public GameObject archerTowerLevel2Prefab;
+    public GameObject archerTowerLevel3Prefab;
+
+    public GameObject magicTowerLevel1Prefab;
+    public GameObject magicTowerLevel2Prefab;
+    public GameObject magicTowerLevel3Prefab;
+
+
     public LayerMask gridLayerMask;
     public LayerMask invalidPlacementMask;
 
@@ -102,13 +109,11 @@ public class Towers : MonoBehaviour
             
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            SelectTower(archerTowerPrefab, 0);
-            Drawning.SetActive(true);
+            SelectTower(archerTowerLevel1Prefab, 0);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            SelectTower(magicTowerPrefab, 1);
-            Drawning.SetActive(true);
+            SelectTower(magicTowerLevel1Prefab, 1);
         }
 
         if (currentTower != null)
@@ -120,7 +125,6 @@ public class Towers : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && currentTower != null && canPlaceTower)
         {
             PlaceTower();
-            Drawning.SetActive(false);
         }
     }
 
@@ -290,7 +294,6 @@ public class Towers : MonoBehaviour
             placementIndicator = Instantiate(placementIndicatorPrefab);
             placementIndicator.transform.localScale = new Vector3(cellSize, 5f, cellSize);
         }
-        Drawning.SetActive(true);
     }
 
     void HighlightTowerImage(int index)
@@ -298,6 +301,7 @@ public class Towers : MonoBehaviour
         Image towerImage = towerImages[index];
         towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 230f / 255f);
         towerImage.rectTransform.sizeDelta = new Vector2(300, 300);
+        Drawning.SetActive(true);
     }
 
     void ResetTowerImage(int index)
