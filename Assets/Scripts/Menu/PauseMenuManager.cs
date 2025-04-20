@@ -10,6 +10,8 @@ public class PauseMenuManager : MonoBehaviour
    public GameObject SettingsMenu;
    public GameObject LevelsMenu;
 
+   public PlayerMovement playerMovement;
+
    private bool isPaused = false;
 
    public AudioSource audioSource;
@@ -68,6 +70,11 @@ public class PauseMenuManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        if (playerMovement != null)
+    {
+        playerMovement.canMove = false;
+    }
     }
 
     public void ResumeGame()
@@ -78,5 +85,11 @@ public class PauseMenuManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false; 
+
+        if (playerMovement != null)
+    {
+        playerMovement.canMove = true;
     }
+    }
+
 }
