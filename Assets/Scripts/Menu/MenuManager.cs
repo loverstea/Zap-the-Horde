@@ -4,26 +4,26 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
-    public GameObject tutorialMenuPanel;
+    public GameObject LevelsMenuPanel;
     public GameObject settingsPanel;
+    public GameObject MainMenuPanel;
 
     void Start()
     {
-        tutorialMenuPanel.SetActive(false); 
+        settingsPanel.SetActive(false);
+        LevelsMenuPanel.SetActive(false); 
+        MainMenuPanel.SetActive(true);
     }
 
     public void OnPlayButtonClick()
     {
-        tutorialMenuPanel.SetActive(true);
+        LevelsMenuPanel.SetActive(true);
     }
-    public void OnPlaySettingsClick()
+    public void OnSettingsButtonClick()
     {
+        MainMenuPanel.SetActive(false);
         settingsPanel.SetActive(true);
 
-    }
-    public void OnCloseSettingsButtonClick()
-    {
-        settingsPanel.SetActive(false);
     }
 
     public void OnTutorialButtonClick()
