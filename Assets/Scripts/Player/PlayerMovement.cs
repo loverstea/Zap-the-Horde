@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
+    public Camera secondaryCamera;
     public Camera playerCamera;
     public float walkSpeed = 6f;
     public float runSpeed = 12f;
@@ -15,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     public float defaultHeight = 2f;
     public float crouchHeight = 1f;
     public float crouchSpeed = 3f;
+
+    private bool isSecondaryCameraActive = false;
 
     private Vector3 moveDirection = Vector3.zero;
     private float rotationX = 0;
@@ -27,6 +30,9 @@ public class PlayerMovement : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        playerCamera.enabled = true;
+        secondaryCamera.enabled = false;
     }
 
     void Update()
@@ -77,5 +83,24 @@ public class PlayerMovement : MonoBehaviour
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
             transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
         }
+
+        if (Input.GetKey(KeyCode.M))
+        {
+        if (!isSecondaryCameraActive)
+        {
+            playerCamera.enabled = false;
+            secondaryCamera.enabled = true;
+            isSecondaryCameraActive = true;
+        }
+    }
+    else
+    {
+        if (isSecondaryCameraActive)
+        {
+            playerCamera.enabled = true;
+            secondaryCamera.enabled = false;
+            isSecondaryCameraActive = false;
+        }
+    }
     }
 }
