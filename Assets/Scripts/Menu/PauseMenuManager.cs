@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System.ComponentModel.Design;
 
 public class PauseMenuManager : MonoBehaviour
 {
@@ -80,6 +79,8 @@ public class PauseMenuManager : MonoBehaviour
 
     public void ResumeGame()
     {
+      if (PauseMenu.activeSelf)
+        {
         isPaused = false;
         PauseMenu.SetActive(false);
         Time.timeScale = 1f;
@@ -88,9 +89,10 @@ public class PauseMenuManager : MonoBehaviour
         Cursor.visible = false; 
 
         if (playerMovement != null)
-    {
+        {
         playerMovement.canMove = true;
-    }
+        }
+        }
     }
 
 }

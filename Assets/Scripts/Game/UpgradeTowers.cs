@@ -100,6 +100,8 @@ public class TowerMenu : MonoBehaviour
 
             TowersMenu.SetActive(false);
             TowerUI.SetActive(false);
+
+            towersScript.towerRemovalSound.Play();
         }
     }
 
@@ -114,21 +116,29 @@ public class TowerMenu : MonoBehaviour
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.archerTowerLevel2Prefab, position, rotation);
+
+            towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.archerTowerLevel3Prefab, position, rotation);
+
+            towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.magicTowerLevel2Prefab, position, rotation);
+
+            towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.magicTowerLevel3Prefab, position, rotation);
+
+            towersScript.towerUpgradeSound.Play();
         }
         }
     }

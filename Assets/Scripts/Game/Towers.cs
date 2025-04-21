@@ -13,6 +13,9 @@ public class Towers : MonoBehaviour
     public GameObject magicTowerLevel2Prefab;
     public GameObject magicTowerLevel3Prefab;
 
+    public AudioSource towerUpgradeSound;
+    public AudioSource towerRemovalSound;
+    public AudioSource towerSelectionSound;
 
     public LayerMask gridLayerMask;
     public LayerMask invalidPlacementMask;
@@ -302,6 +305,7 @@ public class Towers : MonoBehaviour
         towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 230f / 255f);
         towerImage.rectTransform.sizeDelta = new Vector2(300, 300);
         Drawning.SetActive(true);
+        towerSelectionSound.Play();
     }
 
     void ResetTowerImage(int index)
@@ -310,5 +314,6 @@ public class Towers : MonoBehaviour
         towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 130f / 255f);
         towerImage.rectTransform.sizeDelta = new Vector2(250, 250);
         Drawning.SetActive(false);
+        towerSelectionSound.Play();
     }
 }
