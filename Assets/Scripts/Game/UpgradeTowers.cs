@@ -140,6 +140,26 @@ public class TowerMenu : MonoBehaviour
 
             towersScript.towerUpgradeSound.Play();
         }
+        else if (currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
+        {
+            Destroy(currentTower);
+            currentTower = Instantiate(towersScript.IceTowerLevel2Prefab, position, rotation);
+
+            towersScript.towerUpgradeSound.Play();
+        }
+        else if (currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
+        {
+            Destroy(currentTower);
+            currentTower = Instantiate(towersScript.IceTowerLevel3Prefab, position, rotation);
+
+            towersScript.towerUpgradeSound.Play();
+        }
+        else if (currentTower.name.Contains(towersScript.archerTowerLevel3Prefab.name) ||
+                 currentTower.name.Contains(towersScript.magicTowerLevel3Prefab.name) ||
+                 currentTower.name.Contains(towersScript.IceTowerLevel3Prefab.name))
+        {
+            towersScript.TowerCancelSound.Play();
+        }
         }
     }
 

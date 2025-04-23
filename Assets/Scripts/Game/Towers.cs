@@ -13,9 +13,16 @@ public class Towers : MonoBehaviour
     public GameObject magicTowerLevel2Prefab;
     public GameObject magicTowerLevel3Prefab;
 
+    public GameObject IceTowerLevel1Prefab;
+    public GameObject IceTowerLevel2Prefab;
+    public GameObject IceTowerLevel3Prefab;
+
     public AudioSource towerUpgradeSound;
     public AudioSource towerRemovalSound;
     public AudioSource towerSelectionSound;
+    public AudioSource TowerCancelSound;
+
+    public Transform playerTransform;
 
     public LayerMask gridLayerMask;
     public LayerMask invalidPlacementMask;
@@ -118,6 +125,10 @@ public class Towers : MonoBehaviour
         {
             SelectTower(magicTowerLevel1Prefab, 1);
         }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            SelectTower(IceTowerLevel1Prefab, 2);
+        }
 
         if (currentTower != null)
         {
@@ -184,52 +195,111 @@ public class Towers : MonoBehaviour
         return nearestCell;
     }
 
-    void CheckPlacementValidity()
+void CheckPlacementValidity()
+{
+    if (currentTower == null)
     {
-        Collider towerCollider = currentTower.GetComponent<Collider>();
-        if (towerCollider == null)
+        canPlaceTower = false;
+        return;
+    }
+
+    Collider towerCollider = currentTower.GetComponent<Collider>();
+    if (towerCollider == null)
+    {
+        canPlaceTower = false;
+        return;
+    }
+
+    Vector3 boxCenter = currentTower.transform.position;
+
+    // Проверяем, есть ли ссылка на игрока
+    if (playerTransform == null)
+    {
+        Debug.LogError("Player Transform не привязан!");
+        canPlaceTower = false;
+        return;
+    }
+
+    // Получаем позицию игрока
+    Vector3 playerPosition = playerTransform.position;
+
+    // Приводим позицию игрока к ближайшей клетке
+    Vector3 playerCell = FindNearestCell(playerPosition);
+
+    // Генерируем список соседних клеток вокруг игрока
+    List<Vector3> adjacentCells = GetAdjacentCells(playerCell);
+
+    // Проверяем, находится ли башня в одной из соседних клеток
+    bool isInAdjacentCell = adjacentCells.Contains(FindNearestCell(boxCenter));
+
+    // Проверяем, занята ли клетка дорогой
+    bool isCellOccupied = occupiedCells.Contains(FindNearestCell(boxCenter));
+
+    // Проверяем наличие препятствий
+    Collider[] colliders = Physics.OverlapBox(
+        towerCollider.bounds.center,
+        towerCollider.bounds.extents,
+        currentTower.transform.rotation,
+        invalidPlacementMask
+    );
+
+    // Установка башни разрешена только если она в соседней клетке, клетка не занята и нет препятствий
+    if (!isInAdjacentCell || isCellOccupied || colliders.Length > 0)
+    {
+        canPlaceTower = false;
+
+        if (placementIndicator != null)
         {
-            canPlaceTower = false;
-            return;
-        }
-
-        Vector3 boxCenter = currentTower.transform.position;
-        Vector3 boxSize = towerCollider.bounds.size;
-
-        Collider[] colliders = Physics.OverlapBox(
-            boxCenter,
-            boxSize / 2f,
-            currentTower.transform.rotation,
-            invalidPlacementMask
-        );
-
-        if (occupiedCells.Contains(boxCenter) || colliders.Length > 0)
-        {
-            canPlaceTower = false;
-
-            if (placementIndicator != null)
+            Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
+            if (indicatorRenderer != null)
             {
-                Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
-                if (indicatorRenderer != null)
-                {
-                    indicatorRenderer.material = redTransparentMaterial;
-                }
-            }
-        }
-        else
-        {
-            canPlaceTower = true;
-
-            if (placementIndicator != null)
-            {
-                Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
-                if (indicatorRenderer != null)
-                {
-                    indicatorRenderer.material = greenTransparentMaterial;
-                }
+                indicatorRenderer.material = redTransparentMaterial;
             }
         }
     }
+    else
+    {
+        canPlaceTower = true;
+
+        if (placementIndicator != null)
+        {
+            Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
+            if (indicatorRenderer != null)
+            {
+                indicatorRenderer.material = greenTransparentMaterial;
+            }
+        }
+    }
+}
+List<Vector3> GetAdjacentCells(Vector3 centerCell)
+{
+    List<Vector3> adjacentCells = new List<Vector3>();
+
+    // Перебираем все смещения для соседних клеток (включая диагонали)
+    for (int x = -1; x <= 1; x++)
+    {
+        for (int z = -1; z <= 1; z++)
+        {
+            // Пропускаем центральную клетку (где находится игрок)
+            if (x == 0 && z == 0)
+                continue;
+
+            Vector3 adjacentCell = new Vector3(
+                centerCell.x + x * cellSize,
+                centerCell.y,
+                centerCell.z + z * cellSize
+            );
+
+            // Проверяем, существует ли такая клетка в predefinedCells
+            if (predefinedCells.Contains(adjacentCell))
+            {
+                adjacentCells.Add(adjacentCell);
+            }
+        }
+    }
+
+    return adjacentCells;
+}
 
     void PlaceTower()
     {
