@@ -50,6 +50,10 @@ public class Towers : MonoBehaviour
     public Material greenTransparentMaterial;
     public Material redTransparentMaterial;
 
+    private bool isBuildingTower = false;
+
+    public Image buildProgressBar;
+
     void Start()
     {
         Drawning.SetActive(false);
@@ -71,6 +75,11 @@ public class Towers : MonoBehaviour
             {
                 occupiedCells.Add(nearestCell);
             }
+        }
+
+        if (buildProgressBar != null)
+        {
+            buildProgressBar.fillAmount = 0f;
         }
     }
 
@@ -136,10 +145,43 @@ public class Towers : MonoBehaviour
             CheckPlacementValidity();
         }
 
-        if (Input.GetMouseButtonDown(0) && currentTower != null && canPlaceTower)
+        if (Input.GetMouseButtonDown(0) && currentTower != null && canPlaceTower && !isBuildingTower)
         {
-            PlaceTower();
+            StartCoroutine(BuildTowerWithDelay());
         }
+    }
+
+    IEnumerator BuildTowerWithDelay()
+    {
+        isBuildingTower = true;
+
+        if (buildProgressBar != null)
+        {
+            buildProgressBar.gameObject.SetActive(true);
+            buildProgressBar.fillAmount = 1f;
+        }
+
+        float buildTime = 5f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < buildTime)
+        {
+            elapsedTime += Time.deltaTime;
+            if (buildProgressBar != null)
+            {
+                buildProgressBar.fillAmount = 1f - (elapsedTime / buildTime);
+            }
+            yield return null;
+        }
+
+        if (buildProgressBar != null)
+        {
+            buildProgressBar.fillAmount = 0f;
+            buildProgressBar.gameObject.SetActive(false);
+        }
+
+        PlaceTower();
+        isBuildingTower = false;
     }
 
     void GenerateCells()
@@ -212,7 +254,6 @@ void CheckPlacementValidity()
 
     Vector3 boxCenter = currentTower.transform.position;
 
-    // Проверяем, есть ли ссылка на игрока
     if (playerTransform == null)
     {
         Debug.LogError("Player Transform не привязан!");
@@ -220,22 +261,15 @@ void CheckPlacementValidity()
         return;
     }
 
-    // Получаем позицию игрока
     Vector3 playerPosition = playerTransform.position;
 
-    // Приводим позицию игрока к ближайшей клетке
     Vector3 playerCell = FindNearestCell(playerPosition);
 
-    // Генерируем список соседних клеток вокруг игрока
     List<Vector3> adjacentCells = GetAdjacentCells(playerCell);
 
-    // Проверяем, находится ли башня в одной из соседних клеток
     bool isInAdjacentCell = adjacentCells.Contains(FindNearestCell(boxCenter));
-
-    // Проверяем, занята ли клетка дорогой
     bool isCellOccupied = occupiedCells.Contains(FindNearestCell(boxCenter));
 
-    // Проверяем наличие препятствий
     Collider[] colliders = Physics.OverlapBox(
         towerCollider.bounds.center,
         towerCollider.bounds.extents,
@@ -243,7 +277,6 @@ void CheckPlacementValidity()
         invalidPlacementMask
     );
 
-    // Установка башни разрешена только если она в соседней клетке, клетка не занята и нет препятствий
     if (!isInAdjacentCell || isCellOccupied || colliders.Length > 0)
     {
         canPlaceTower = false;
@@ -275,12 +308,10 @@ List<Vector3> GetAdjacentCells(Vector3 centerCell)
 {
     List<Vector3> adjacentCells = new List<Vector3>();
 
-    // Перебираем все смещения для соседних клеток (включая диагонали)
     for (int x = -1; x <= 1; x++)
     {
         for (int z = -1; z <= 1; z++)
         {
-            // Пропускаем центральную клетку (где находится игрок)
             if (x == 0 && z == 0)
                 continue;
 
@@ -289,8 +320,6 @@ List<Vector3> GetAdjacentCells(Vector3 centerCell)
                 centerCell.y,
                 centerCell.z + z * cellSize
             );
-
-            // Проверяем, существует ли такая клетка в predefinedCells
             if (predefinedCells.Contains(adjacentCell))
             {
                 adjacentCells.Add(adjacentCell);
