@@ -48,11 +48,14 @@ public class Towers : MonoBehaviour
     private GameObject placementIndicator;
 
     public Material greenTransparentMaterial;
-    public Material redTransparentMaterial;
 
     private bool isBuildingTower = false;
 
     public Image buildProgressBar;
+    public Image buildProgressBarImage;
+
+    private Vector3 lastCameraPosition;
+    private Vector3 currentCellPosition;
 
     void Start()
     {
@@ -81,51 +84,57 @@ public class Towers : MonoBehaviour
         {
             buildProgressBar.fillAmount = 0f;
         }
+        buildProgressBarImage.gameObject.SetActive(false);
+
+        lastCameraPosition = mainCamera.transform.position;
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Q))
-    {
-        Drawning.SetActive(false);
-        if (currentTower != null)
         {
-            Destroy(currentTower);
-            currentTower = null;
-        }
+            ResetBuildMode();
 
-        if (placementIndicator != null)
-        {
-            Destroy(placementIndicator);
-        }
-
-        if (selectedTowerIndex != -1)
-        {
-            ResetTowerImage(selectedTowerIndex);
-            selectedTowerIndex = -1;
-        }
-    }
-                else if (Input.GetKeyDown(KeyCode.Alpha0))
+            Drawning.SetActive(false);
+            if (currentTower != null)
             {
-                if (currentTower != null)
-                {
-                    Destroy(currentTower);
-                    currentTower = null;
-                }
-    
-                if (placementIndicator != null)
-                {
-                    Destroy(placementIndicator);
-                }
-    
-                if (selectedTowerIndex != -1)
-                {
-                    ResetTowerImage(selectedTowerIndex);
-                    selectedTowerIndex = -1;
-                }
+                Destroy(currentTower);
+                currentTower = null;
             }
 
-            
+            if (placementIndicator != null)
+            {
+                Destroy(placementIndicator);
+            }
+
+            if (selectedTowerIndex != -1)
+            {
+                ResetTowerImage(selectedTowerIndex);
+                selectedTowerIndex = -1;
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            ResetBuildMode();
+
+            if (currentTower != null)
+            {
+                Destroy(currentTower);
+                currentTower = null;
+            }
+
+            if (placementIndicator != null)
+            {
+                Destroy(placementIndicator);
+            }
+
+            if (selectedTowerIndex != -1)
+            {
+                ResetTowerImage(selectedTowerIndex);
+                selectedTowerIndex = -1;
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             SelectTower(archerTowerLevel1Prefab, 0);
@@ -139,10 +148,21 @@ public class Towers : MonoBehaviour
             SelectTower(IceTowerLevel1Prefab, 2);
         }
 
-        if (currentTower != null)
+        if (currentTower != null && !isBuildingTower)
         {
             MoveTowerToGrid();
             CheckPlacementValidity();
+
+            if (!canPlaceTower)
+            {
+                currentTower.SetActive(false);
+                placementIndicator.SetActive(false);
+            }
+            else
+            {
+                placementIndicator.SetActive(true);
+                currentTower.SetActive(true);
+            }
         }
 
         if (Input.GetMouseButtonDown(0) && currentTower != null && canPlaceTower && !isBuildingTower)
@@ -151,21 +171,38 @@ public class Towers : MonoBehaviour
         }
     }
 
-    IEnumerator BuildTowerWithDelay()
+        IEnumerator BuildTowerWithDelay()
     {
-        isBuildingTower = true;
-
         if (buildProgressBar != null)
         {
             buildProgressBar.gameObject.SetActive(true);
+            buildProgressBarImage.gameObject.SetActive(true);
             buildProgressBar.fillAmount = 1f;
         }
-
-        float buildTime = 5f;
+    
+        float buildTime = 3f;
         float elapsedTime = 0f;
-
+    
+        currentCellPosition = FindNearestCell(currentTower.transform.position);
+        Vector3 initialCameraCell = FindNearestCell(mainCamera.transform.position);
+    
         while (elapsedTime < buildTime)
         {
+            Vector3 newCellPosition = FindNearestCell(currentTower.transform.position);
+            Vector3 currentCameraCell = FindNearestCell(mainCamera.transform.position);
+    
+            if (newCellPosition != currentCellPosition || currentCameraCell != initialCameraCell)
+            {
+                if (buildProgressBar != null)
+                {
+                    buildProgressBar.fillAmount = 0f;
+                    buildProgressBar.gameObject.SetActive(false);
+                    buildProgressBarImage.gameObject.SetActive(false);
+                }
+                isBuildingTower = false;
+                yield break;
+            }
+    
             elapsedTime += Time.deltaTime;
             if (buildProgressBar != null)
             {
@@ -173,13 +210,17 @@ public class Towers : MonoBehaviour
             }
             yield return null;
         }
-
+    
         if (buildProgressBar != null)
         {
             buildProgressBar.fillAmount = 0f;
             buildProgressBar.gameObject.SetActive(false);
+            buildProgressBarImage.gameObject.SetActive(false);
         }
-
+        
+        buildProgressBar.fillAmount = 0f;
+        buildProgressBar.gameObject.SetActive(false);
+        buildProgressBarImage.gameObject.SetActive(false);
         PlaceTower();
         isBuildingTower = false;
     }
@@ -237,98 +278,89 @@ public class Towers : MonoBehaviour
         return nearestCell;
     }
 
-void CheckPlacementValidity()
-{
-    if (currentTower == null)
+    void CheckPlacementValidity()
     {
-        canPlaceTower = false;
-        return;
-    }
-
-    Collider towerCollider = currentTower.GetComponent<Collider>();
-    if (towerCollider == null)
-    {
-        canPlaceTower = false;
-        return;
-    }
-
-    Vector3 boxCenter = currentTower.transform.position;
-
-    if (playerTransform == null)
-    {
-        Debug.LogError("Player Transform не привязан!");
-        canPlaceTower = false;
-        return;
-    }
-
-    Vector3 playerPosition = playerTransform.position;
-
-    Vector3 playerCell = FindNearestCell(playerPosition);
-
-    List<Vector3> adjacentCells = GetAdjacentCells(playerCell);
-
-    bool isInAdjacentCell = adjacentCells.Contains(FindNearestCell(boxCenter));
-    bool isCellOccupied = occupiedCells.Contains(FindNearestCell(boxCenter));
-
-    Collider[] colliders = Physics.OverlapBox(
-        towerCollider.bounds.center,
-        towerCollider.bounds.extents,
-        currentTower.transform.rotation,
-        invalidPlacementMask
-    );
-
-    if (!isInAdjacentCell || isCellOccupied || colliders.Length > 0)
-    {
-        canPlaceTower = false;
-
-        if (placementIndicator != null)
+        if (currentTower == null)
         {
-            Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
-            if (indicatorRenderer != null)
-            {
-                indicatorRenderer.material = redTransparentMaterial;
-            }
+            canPlaceTower = false;
+            return;
         }
-    }
-    else
-    {
-        canPlaceTower = true;
 
-        if (placementIndicator != null)
+        Collider towerCollider = currentTower.GetComponent<Collider>();
+        if (towerCollider == null)
         {
-            Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
-            if (indicatorRenderer != null)
-            {
-                indicatorRenderer.material = greenTransparentMaterial;
-            }
+            canPlaceTower = false;
+            return;
         }
-    }
-}
-List<Vector3> GetAdjacentCells(Vector3 centerCell)
-{
-    List<Vector3> adjacentCells = new List<Vector3>();
 
-    for (int x = -1; x <= 1; x++)
-    {
-        for (int z = -1; z <= 1; z++)
+        Vector3 boxCenter = currentTower.transform.position;
+
+        if (playerTransform == null)
         {
-            if (x == 0 && z == 0)
-                continue;
+            canPlaceTower = false;
+            return;
+        }
 
-            Vector3 adjacentCell = new Vector3(
-                centerCell.x + x * cellSize,
-                centerCell.y,
-                centerCell.z + z * cellSize
-            );
-            if (predefinedCells.Contains(adjacentCell))
+        Vector3 playerPosition = playerTransform.position;
+
+        Vector3 playerCell = FindNearestCell(playerPosition);
+
+        List<Vector3> adjacentCells = GetAdjacentCells(playerCell);
+
+        bool isInAdjacentCell = adjacentCells.Contains(FindNearestCell(boxCenter));
+        bool isCellOccupied = occupiedCells.Contains(FindNearestCell(boxCenter));
+
+        Collider[] colliders = Physics.OverlapBox(
+            towerCollider.bounds.center,
+            towerCollider.bounds.extents,
+            currentTower.transform.rotation,
+            invalidPlacementMask
+        );
+
+        if (!isInAdjacentCell || isCellOccupied || colliders.Length > 0)
+        {
+            canPlaceTower = false;
+        }
+        else
+        {
+            canPlaceTower = true;
+
+            if (placementIndicator != null)
             {
-                adjacentCells.Add(adjacentCell);
+                Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
+                if (indicatorRenderer != null)
+                {
+                    indicatorRenderer.material = greenTransparentMaterial;
+                }
             }
         }
     }
 
-    return adjacentCells;
-}
+    List<Vector3> GetAdjacentCells(Vector3 centerCell)
+    {
+        List<Vector3> adjacentCells = new List<Vector3>();
+
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int z = -1; z <= 1; z++)
+            {
+                if (x == 0 && z == 0)
+                    continue;
+
+                Vector3 adjacentCell = new Vector3(
+                    centerCell.x + x * cellSize,
+                    centerCell.y,
+                    centerCell.z + z * cellSize
+                );
+                if (predefinedCells.Contains(adjacentCell))
+                {
+                    adjacentCells.Add(adjacentCell);
+                }
+            }
+        }
+
+        return adjacentCells;
+    }
 
     void PlaceTower()
     {
@@ -360,17 +392,19 @@ List<Vector3> GetAdjacentCells(Vector3 centerCell)
 
     void SelectTower(GameObject towerPrefab, int imageIndex)
     {
+        ResetBuildMode();
+
         if (selectedTowerIndex == imageIndex)
-    {
-        ResetTowerImage(imageIndex);
-        selectedTowerIndex = -1;
-        Destroy(currentTower);
-        if (placementIndicator != null)
         {
-            Destroy(placementIndicator);
+            ResetTowerImage(imageIndex);
+            selectedTowerIndex = -1;
+            Destroy(currentTower);
+            if (placementIndicator != null)
+            {
+                Destroy(placementIndicator);
+            }
+            return;
         }
-        return;
-    }
 
         if (selectedTowerIndex != -1)
         {
@@ -415,4 +449,15 @@ List<Vector3> GetAdjacentCells(Vector3 centerCell)
         Drawning.SetActive(false);
         towerSelectionSound.Play();
     }
+    void ResetBuildMode()
+{
+    if (buildProgressBar != null)
+    {
+        buildProgressBar.fillAmount = 0f;
+        buildProgressBar.gameObject.SetActive(false);
+        buildProgressBarImage.gameObject.SetActive(false);
+    }
+
+    isBuildingTower = false;
+}
 }
