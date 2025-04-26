@@ -12,9 +12,11 @@ public class ScriptableOBJ : ScriptableObject
     [SerializeField]
     private int HP;
     [SerializeField] 
-    private int MP;
+    private int Attack;
     [SerializeField]
-    private GameObject prefab;
+    public GameObject prefab;
     [SerializeField]
-    private NavMeshAgent agent;
+    private GameObject agent;
+    [SerializeField]
+    private int Coins;
 }

@@ -5,17 +5,42 @@ using UnityEngine.AI;
 
 public class EnemiScript : MonoBehaviour
 {
-    private NavMeshAgent NavMeshAgent;
+    private NavMeshAgent navMeshAgent;
+
     [SerializeField]
-    private Transform Finish;
-    void Start()
+    private Transform finish;
+
+    public GameManager gameManager;
+
+    [SerializeField]
+    private int damage = 1;
+
+    private void Start()
     {
-        NavMeshAgent = GetComponent<NavMeshAgent>();
-        if (NavMeshAgent != null )
+        navMeshAgent = GetComponent<NavMeshAgent>();
+    }
+
+    void Update()
+    {
+        if (navMeshAgent != null && finish != null)
         {
-            NavMeshAgent.SetDestination(Finish.position);
+            navMeshAgent.SetDestination(finish.position);
         }
     }
 
-   
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Attack();
+        }
+    }
+
+    public void Attack()
+    {
+        if (gameManager != null)
+        {
+            gameManager.PlayerHp -= damage;
+        }
+    }
 }
