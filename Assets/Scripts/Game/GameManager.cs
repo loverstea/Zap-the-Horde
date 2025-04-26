@@ -9,7 +9,10 @@ public class GameManager : MonoBehaviour
 
     public int Coins;
 
-    public Text Text;
+    public Text Hp;
+
+    public Text Coinss;
+        
 
     private void Start()
     {
@@ -18,7 +21,9 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        Text.text = "Hp: " + PlayerHp;
+        Hp.text = "Hp: " + PlayerHp;
+
+        Coinss.text = "Coins: " + Coins;
     }
 
 
