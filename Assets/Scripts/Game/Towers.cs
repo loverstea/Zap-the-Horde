@@ -13,9 +13,16 @@ public class Towers : MonoBehaviour
     public GameObject magicTowerLevel2Prefab;
     public GameObject magicTowerLevel3Prefab;
 
+    public GameObject IceTowerLevel1Prefab;
+    public GameObject IceTowerLevel2Prefab;
+    public GameObject IceTowerLevel3Prefab;
+
     public AudioSource towerUpgradeSound;
     public AudioSource towerRemovalSound;
     public AudioSource towerSelectionSound;
+    public AudioSource TowerCancelSound;
+
+    public Transform playerTransform;
 
     public LayerMask gridLayerMask;
     public LayerMask invalidPlacementMask;
@@ -41,7 +48,14 @@ public class Towers : MonoBehaviour
     private GameObject placementIndicator;
 
     public Material greenTransparentMaterial;
-    public Material redTransparentMaterial;
+
+    private bool isBuildingTower = false;
+
+    public Image buildProgressBar;
+    public Image buildProgressBarImage;
+
+    private Vector3 lastCameraPosition;
+    private Vector3 currentCellPosition;
 
     void Start()
     {
@@ -65,51 +79,62 @@ public class Towers : MonoBehaviour
                 occupiedCells.Add(nearestCell);
             }
         }
+
+        if (buildProgressBar != null)
+        {
+            buildProgressBar.fillAmount = 0f;
+        }
+        buildProgressBarImage.gameObject.SetActive(false);
+
+        lastCameraPosition = mainCamera.transform.position;
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Q))
-    {
-        Drawning.SetActive(false);
-        if (currentTower != null)
         {
-            Destroy(currentTower);
-            currentTower = null;
-        }
+            ResetBuildMode();
 
-        if (placementIndicator != null)
-        {
-            Destroy(placementIndicator);
-        }
-
-        if (selectedTowerIndex != -1)
-        {
-            ResetTowerImage(selectedTowerIndex);
-            selectedTowerIndex = -1;
-        }
-    }
-                else if (Input.GetKeyDown(KeyCode.Alpha0))
+            Drawning.SetActive(false);
+            if (currentTower != null)
             {
-                if (currentTower != null)
-                {
-                    Destroy(currentTower);
-                    currentTower = null;
-                }
-    
-                if (placementIndicator != null)
-                {
-                    Destroy(placementIndicator);
-                }
-    
-                if (selectedTowerIndex != -1)
-                {
-                    ResetTowerImage(selectedTowerIndex);
-                    selectedTowerIndex = -1;
-                }
+                Destroy(currentTower);
+                currentTower = null;
             }
 
-            
+            if (placementIndicator != null)
+            {
+                Destroy(placementIndicator);
+            }
+
+            if (selectedTowerIndex != -1)
+            {
+                ResetTowerImage(selectedTowerIndex);
+                selectedTowerIndex = -1;
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            ResetBuildMode();
+
+            if (currentTower != null)
+            {
+                Destroy(currentTower);
+                currentTower = null;
+            }
+
+            if (placementIndicator != null)
+            {
+                Destroy(placementIndicator);
+            }
+
+            if (selectedTowerIndex != -1)
+            {
+                ResetTowerImage(selectedTowerIndex);
+                selectedTowerIndex = -1;
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             SelectTower(archerTowerLevel1Prefab, 0);
@@ -118,17 +143,86 @@ public class Towers : MonoBehaviour
         {
             SelectTower(magicTowerLevel1Prefab, 1);
         }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            SelectTower(IceTowerLevel1Prefab, 2);
+        }
 
-        if (currentTower != null)
+        if (currentTower != null && !isBuildingTower)
         {
             MoveTowerToGrid();
             CheckPlacementValidity();
+
+            if (!canPlaceTower)
+            {
+                currentTower.SetActive(false);
+                placementIndicator.SetActive(false);
+            }
+            else
+            {
+                placementIndicator.SetActive(true);
+                currentTower.SetActive(true);
+            }
         }
 
-        if (Input.GetMouseButtonDown(0) && currentTower != null && canPlaceTower)
+        if (Input.GetMouseButtonDown(0) && currentTower != null && canPlaceTower && !isBuildingTower)
         {
-            PlaceTower();
+            StartCoroutine(BuildTowerWithDelay());
         }
+    }
+
+        IEnumerator BuildTowerWithDelay()
+    {
+        if (buildProgressBar != null)
+        {
+            buildProgressBar.gameObject.SetActive(true);
+            buildProgressBarImage.gameObject.SetActive(true);
+            buildProgressBar.fillAmount = 1f;
+        }
+    
+        float buildTime = 3f;
+        float elapsedTime = 0f;
+    
+        currentCellPosition = FindNearestCell(currentTower.transform.position);
+        Vector3 initialCameraCell = FindNearestCell(mainCamera.transform.position);
+    
+        while (elapsedTime < buildTime)
+        {
+            Vector3 newCellPosition = FindNearestCell(currentTower.transform.position);
+            Vector3 currentCameraCell = FindNearestCell(mainCamera.transform.position);
+    
+            if (newCellPosition != currentCellPosition || currentCameraCell != initialCameraCell)
+            {
+                if (buildProgressBar != null)
+                {
+                    buildProgressBar.fillAmount = 0f;
+                    buildProgressBar.gameObject.SetActive(false);
+                    buildProgressBarImage.gameObject.SetActive(false);
+                }
+                isBuildingTower = false;
+                yield break;
+            }
+    
+            elapsedTime += Time.deltaTime;
+            if (buildProgressBar != null)
+            {
+                buildProgressBar.fillAmount = 1f - (elapsedTime / buildTime);
+            }
+            yield return null;
+        }
+    
+        if (buildProgressBar != null)
+        {
+            buildProgressBar.fillAmount = 0f;
+            buildProgressBar.gameObject.SetActive(false);
+            buildProgressBarImage.gameObject.SetActive(false);
+        }
+        
+        buildProgressBar.fillAmount = 0f;
+        buildProgressBar.gameObject.SetActive(false);
+        buildProgressBarImage.gameObject.SetActive(false);
+        PlaceTower();
+        isBuildingTower = false;
     }
 
     void GenerateCells()
@@ -186,6 +280,12 @@ public class Towers : MonoBehaviour
 
     void CheckPlacementValidity()
     {
+        if (currentTower == null)
+        {
+            canPlaceTower = false;
+            return;
+        }
+
         Collider towerCollider = currentTower.GetComponent<Collider>();
         if (towerCollider == null)
         {
@@ -194,27 +294,32 @@ public class Towers : MonoBehaviour
         }
 
         Vector3 boxCenter = currentTower.transform.position;
-        Vector3 boxSize = towerCollider.bounds.size;
+
+        if (playerTransform == null)
+        {
+            canPlaceTower = false;
+            return;
+        }
+
+        Vector3 playerPosition = playerTransform.position;
+
+        Vector3 playerCell = FindNearestCell(playerPosition);
+
+        List<Vector3> adjacentCells = GetAdjacentCells(playerCell);
+
+        bool isInAdjacentCell = adjacentCells.Contains(FindNearestCell(boxCenter));
+        bool isCellOccupied = occupiedCells.Contains(FindNearestCell(boxCenter));
 
         Collider[] colliders = Physics.OverlapBox(
-            boxCenter,
-            boxSize / 2f,
+            towerCollider.bounds.center,
+            towerCollider.bounds.extents,
             currentTower.transform.rotation,
             invalidPlacementMask
         );
 
-        if (occupiedCells.Contains(boxCenter) || colliders.Length > 0)
+        if (!isInAdjacentCell || isCellOccupied || colliders.Length > 0)
         {
             canPlaceTower = false;
-
-            if (placementIndicator != null)
-            {
-                Renderer indicatorRenderer = placementIndicator.GetComponent<Renderer>();
-                if (indicatorRenderer != null)
-                {
-                    indicatorRenderer.material = redTransparentMaterial;
-                }
-            }
         }
         else
         {
@@ -229,6 +334,32 @@ public class Towers : MonoBehaviour
                 }
             }
         }
+    }
+
+    List<Vector3> GetAdjacentCells(Vector3 centerCell)
+    {
+        List<Vector3> adjacentCells = new List<Vector3>();
+
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int z = -1; z <= 1; z++)
+            {
+                if (x == 0 && z == 0)
+                    continue;
+
+                Vector3 adjacentCell = new Vector3(
+                    centerCell.x + x * cellSize,
+                    centerCell.y,
+                    centerCell.z + z * cellSize
+                );
+                if (predefinedCells.Contains(adjacentCell))
+                {
+                    adjacentCells.Add(adjacentCell);
+                }
+            }
+        }
+
+        return adjacentCells;
     }
 
     void PlaceTower()
@@ -261,17 +392,19 @@ public class Towers : MonoBehaviour
 
     void SelectTower(GameObject towerPrefab, int imageIndex)
     {
+        ResetBuildMode();
+
         if (selectedTowerIndex == imageIndex)
-    {
-        ResetTowerImage(imageIndex);
-        selectedTowerIndex = -1;
-        Destroy(currentTower);
-        if (placementIndicator != null)
         {
-            Destroy(placementIndicator);
+            ResetTowerImage(imageIndex);
+            selectedTowerIndex = -1;
+            Destroy(currentTower);
+            if (placementIndicator != null)
+            {
+                Destroy(placementIndicator);
+            }
+            return;
         }
-        return;
-    }
 
         if (selectedTowerIndex != -1)
         {
@@ -316,4 +449,15 @@ public class Towers : MonoBehaviour
         Drawning.SetActive(false);
         towerSelectionSound.Play();
     }
+    void ResetBuildMode()
+{
+    if (buildProgressBar != null)
+    {
+        buildProgressBar.fillAmount = 0f;
+        buildProgressBar.gameObject.SetActive(false);
+        buildProgressBarImage.gameObject.SetActive(false);
+    }
+
+    isBuildingTower = false;
+}
 }
