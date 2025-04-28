@@ -12,7 +12,13 @@ public class GameManager : MonoBehaviour
     public Text Hp;
 
     public Text Coinss;
-        
+
+    public static GameManager instance;
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     private void Start()
     {
@@ -26,6 +32,6 @@ public class GameManager : MonoBehaviour
         Coinss.text = "Coins: " + Coins;
     }
 
-
+    
 
 }

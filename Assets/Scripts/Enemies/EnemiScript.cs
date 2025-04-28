@@ -10,11 +10,8 @@ public class EnemiScript : MonoBehaviour
     public ScriptableOBJ OBJ;
 
     private NavMeshAgent navMeshAgent;
-    
-    [SerializeField]
-    private Transform finish;
 
-    public GameManager gameManager;
+    private GameManager gameManager;
 
     [SerializeField]
     private int damage;
@@ -33,13 +30,15 @@ public class EnemiScript : MonoBehaviour
             Hp = OBJ.HP;
             damage = OBJ.Attacka;
         }
+        gameManager = GameManager.instance;
+
     }
 
     void Update()
     {
-        if (navMeshAgent != null && finish != null)
+        if (navMeshAgent != null)
         {
-            navMeshAgent.SetDestination(finish.position);
+            navMeshAgent.SetDestination(gameManager.transform.position);
         }
         if (Hp <= 0)
         {
