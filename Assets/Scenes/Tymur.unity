@@ -250,7 +250,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.8928335}
   m_AnchorMax: {x: 0.23200001, y: 1}
-  m_AnchoredPosition: {x: 0.11401367, y: 2.3321838}
+  m_AnchoredPosition: {x: 0.11401367, y: 2.3322144}
   m_SizeDelta: {x: -2.1118927, y: -4.664398}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &205619468
@@ -763,6 +763,7 @@ GameObject:
   - component: {fileID: 680124804}
   - component: {fileID: 680124805}
   - component: {fileID: 680124806}
+  - component: {fileID: 680124807}
   m_Layer: 0
   m_Name: Finish
   m_TagString: Player
@@ -822,6 +823,33 @@ MonoBehaviour:
   Coins: 0
   Hp: {fileID: 205619468}
   Coinss: {fileID: 394709576}
+--- !u!54 &680124807
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680124803}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &764627729
 GameObject:
   m_ObjectHideFlags: 0
@@ -1186,7 +1214,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1695502807786446131, guid: c73a559184154c75991d095521bdea87, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.01
+      value: -11.5
       objectReference: {fileID: 0}
     - target: {fileID: 1695502807786446131, guid: c73a559184154c75991d095521bdea87, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1245,9 +1273,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1695502807786733843, guid: c73a559184154c75991d095521bdea87, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1139662012}
-    - targetCorrespondingSourceObject: {fileID: 1695502807786733843, guid: c73a559184154c75991d095521bdea87, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1139662015}
   m_SourcePrefab: {fileID: 100100000, guid: c73a559184154c75991d095521bdea87, type: 3}
 --- !u!114 &1139662008
 MonoBehaviour:
@@ -1261,12 +1286,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81cd933af302e1e4589fe05b57b75056, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  self: {fileID: 845384129}
+  OBJ: {fileID: 0}
   finish: {fileID: 680124804}
   gameManager: {fileID: 680124806}
   damage: 3
-  Hp: 0
-  DropCoin: 0
+  Hp: 2
+  DropCoin: 10
 --- !u!195 &1139662009
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1310,33 +1335,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 2.611405, z: 1}
   m_Center: {x: 0, y: 0.80570245, z: 0}
---- !u!54 &1139662015
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 845384129}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1001 &1324505769
 PrefabInstance:
   m_ObjectHideFlags: 0

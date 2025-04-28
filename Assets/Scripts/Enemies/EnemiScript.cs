@@ -53,6 +53,7 @@ public class EnemiScript : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Attack();
+            Hp = 0;
         }
     }
 
