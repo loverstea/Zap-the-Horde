@@ -7,8 +7,10 @@ using UnityEngine.AI;
 
 public class EnemiScript : MonoBehaviour
 {
+    public ScriptableOBJ OBJ;
+
     private NavMeshAgent navMeshAgent;
-    public GameObject self;
+    
     [SerializeField]
     private Transform finish;
 
@@ -25,6 +27,12 @@ public class EnemiScript : MonoBehaviour
     private void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+        if (OBJ != null)
+        {
+            DropCoin = OBJ.Coins;
+            Hp = OBJ.HP;
+            damage = OBJ.Attacka;
+        }
     }
 
     void Update()
@@ -36,7 +44,7 @@ public class EnemiScript : MonoBehaviour
         if (Hp <= 0)
         {
             gameManager.Coins += DropCoin;  
-            Object.Destroy(self);
+            Object.Destroy(gameObject);
         }
     }
 

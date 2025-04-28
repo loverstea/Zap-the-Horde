@@ -9,14 +9,12 @@ using UnityEngine.AI;
 [CreateAssetMenu(fileName ="News Script", menuName = "Enemies", order = 1)]
 public class ScriptableOBJ : ScriptableObject
 { 
-    [SerializeField]
-    private int HP;
-    [SerializeField] 
-    private int Attack;
-    [SerializeField]
+    
+    public int HP;
+    
+    public int Attacka;
+    
     public GameObject prefab;
-    [SerializeField]
-    private GameObject agent;
-    [SerializeField]
-    private int Coins;
+    
+    public int Coins;
 }

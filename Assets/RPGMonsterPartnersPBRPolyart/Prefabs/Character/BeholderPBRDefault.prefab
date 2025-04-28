@@ -1616,9 +1616,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81cd933af302e1e4589fe05b57b75056, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OBJ: {fileID: 11400000, guid: 66a791a103936264a85efe789bbcdf9f, type: 2}
+  self: {fileID: 0}
   finish: {fileID: 0}
   gameManager: {fileID: 0}
   damage: 1
+  Hp: 0
+  DropCoin: 0
 --- !u!135 &9163630679674615234
 SphereCollider:
   m_ObjectHideFlags: 0

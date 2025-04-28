@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Bacteria
   m_EditorClassIdentifier: 
   HP: 5
-  Attack: 1
+  Attacka: 2
   prefab: {fileID: 4530003306004163418, guid: a281aaaef0214dbbb7a0c5e5d4d370d1, type: 3}
-  agent: {fileID: 4530003306004163418, guid: a281aaaef0214dbbb7a0c5e5d4d370d1, type: 3}
   Coins: 10
