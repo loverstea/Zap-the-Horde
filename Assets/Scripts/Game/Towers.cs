@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Towers : MonoBehaviour
 {
@@ -56,6 +57,13 @@ public class Towers : MonoBehaviour
 
     private Vector3 lastCameraPosition;
     private Vector3 currentCellPosition;
+
+    public int Coins;
+    public TextMeshProUGUI Coinss;
+
+    public int AtcherTowerCost = 100;
+    public int MagicTowerCost = 200;
+    public int IceTowerCost = 170;
 
     void Start()
     {
@@ -169,62 +177,100 @@ public class Towers : MonoBehaviour
         {
             StartCoroutine(BuildTowerWithDelay());
         }
+
+        Coinss.text = " " + Coins;
     }
 
-        IEnumerator BuildTowerWithDelay()
+       IEnumerator BuildTowerWithDelay()
+{
+    int towerCost = 0;
+
+    if (currentTower != null && currentTower.name.Contains(archerTowerLevel1Prefab.name))
     {
-        if (buildProgressBar != null)
+        towerCost = AtcherTowerCost;
+    }
+    else if (currentTower != null && currentTower.name.Contains(magicTowerLevel1Prefab.name))
+    {
+        towerCost = MagicTowerCost;
+    }
+    else if (currentTower != null && currentTower.name.Contains(IceTowerLevel1Prefab.name))
+    {
+        towerCost = IceTowerCost;
+    }
+
+    if (Coins < towerCost)
+    {
+        yield break;
+    }
+
+    if (buildProgressBar != null)
+    {
+        buildProgressBar.gameObject.SetActive(true);
+        buildProgressBarImage.gameObject.SetActive(true);
+        buildProgressBar.fillAmount = 1f;
+    }
+
+    float buildTime = 3f;
+    float elapsedTime = 0f;
+
+    if (currentTower == null)
+    {
+        yield break;
+    }
+
+    currentCellPosition = FindNearestCell(currentTower.transform.position);
+    Vector3 initialCameraCell = FindNearestCell(mainCamera.transform.position);
+
+    while (elapsedTime < buildTime)
+    {
+        if (currentTower == null)
         {
-            buildProgressBar.gameObject.SetActive(true);
-            buildProgressBarImage.gameObject.SetActive(true);
-            buildProgressBar.fillAmount = 1f;
-        }
-    
-        float buildTime = 3f;
-        float elapsedTime = 0f;
-    
-        currentCellPosition = FindNearestCell(currentTower.transform.position);
-        Vector3 initialCameraCell = FindNearestCell(mainCamera.transform.position);
-    
-        while (elapsedTime < buildTime)
-        {
-            Vector3 newCellPosition = FindNearestCell(currentTower.transform.position);
-            Vector3 currentCameraCell = FindNearestCell(mainCamera.transform.position);
-    
-            if (newCellPosition != currentCellPosition || currentCameraCell != initialCameraCell)
-            {
-                if (buildProgressBar != null)
-                {
-                    buildProgressBar.fillAmount = 0f;
-                    buildProgressBar.gameObject.SetActive(false);
-                    buildProgressBarImage.gameObject.SetActive(false);
-                }
-                isBuildingTower = false;
-                yield break;
-            }
-    
-            elapsedTime += Time.deltaTime;
             if (buildProgressBar != null)
             {
-                buildProgressBar.fillAmount = 1f - (elapsedTime / buildTime);
+                buildProgressBar.fillAmount = 0f;
+                buildProgressBar.gameObject.SetActive(false);
+                buildProgressBarImage.gameObject.SetActive(false);
             }
-            yield return null;
+            isBuildingTower = false;
+            yield break;
         }
-    
+
+        Vector3 newCellPosition = FindNearestCell(currentTower.transform.position);
+        Vector3 currentCameraCell = FindNearestCell(mainCamera.transform.position);
+
+        if (newCellPosition != currentCellPosition || currentCameraCell != initialCameraCell)
+        {
+            if (buildProgressBar != null)
+            {
+                buildProgressBar.fillAmount = 0f;
+                buildProgressBar.gameObject.SetActive(false);
+                buildProgressBarImage.gameObject.SetActive(false);
+            }
+            isBuildingTower = false;
+            yield break;
+        }
+
+        elapsedTime += Time.deltaTime;
         if (buildProgressBar != null)
         {
-            buildProgressBar.fillAmount = 0f;
-            buildProgressBar.gameObject.SetActive(false);
-            buildProgressBarImage.gameObject.SetActive(false);
+            buildProgressBar.fillAmount = 1f - (elapsedTime / buildTime);
         }
-        
+        yield return null;
+    }
+
+    if (buildProgressBar != null)
+    {
         buildProgressBar.fillAmount = 0f;
         buildProgressBar.gameObject.SetActive(false);
         buildProgressBarImage.gameObject.SetActive(false);
-        PlaceTower();
-        isBuildingTower = false;
     }
 
+    Coins -= towerCost;
+    Coinss.text = Coins.ToString();
+
+    PlaceTower();
+    isBuildingTower = false;
+}
     void GenerateCells()
     {
         predefinedCells = new List<Vector3>();

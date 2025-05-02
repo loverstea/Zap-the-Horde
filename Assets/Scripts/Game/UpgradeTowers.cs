@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class TowerMenu : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class TowerMenu : MonoBehaviour
     private bool isNearTower = false;
     private Towers towersScript;
     private Vector3 currentCellPosition;
+
+    public TextMeshProUGUI UpgradeText;
 
     void Start()
     {
@@ -63,11 +66,55 @@ public class TowerMenu : MonoBehaviour
                 TowersMenu.SetActive(false);
                 TowerUI.SetActive(false);
             }
+
+            UpdateUpgradeText();
         }
         else
         {
             TowerUI.SetActive(false);
         }
+    }
+
+    private void UpdateUpgradeText()
+{
+    if (currentTower == null)
+    {
+        UpgradeText.text = "Выберите башню для улучшения";
+        return;
+    }
+
+    int upgradeCost = 0;
+
+    if (currentTower.name.Contains(towersScript.archerTowerLevel1Prefab.name))
+    {
+        upgradeCost = 80;
+    }
+    else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name))
+    {
+        upgradeCost = 120;
+    }
+    else if (currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name))
+    {
+        upgradeCost = 160;
+    }
+    else if (currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name))
+    {
+        upgradeCost = 220;
+    }
+    else if (currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
+    {
+        upgradeCost = 100;
+    }
+    else if (currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
+    {
+        upgradeCost = 150;
+    }
+    else
+    {
+        UpgradeText.text = "MAX";
+        return;
+    }
+    UpgradeText.text = "" + upgradeCost;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -88,6 +135,13 @@ public class TowerMenu : MonoBehaviour
 
             TowersMenu.SetActive(false);
             TowerUI.SetActive(false);
+
+            if (upgradeProgressBar != null)
+        {
+            upgradeProgressBar.fillAmount = 0f;
+            upgradeProgressBar.gameObject.SetActive(false);
+            upgradeProgressBarImage.gameObject.SetActive(false);
+        }
         }
     }
 
@@ -123,29 +177,78 @@ public class TowerMenu : MonoBehaviour
     }
 
     IEnumerator UpgradeTowerWithDelay()
+{
+    int upgradeCost = 0;
+
+    if (currentTower.name.Contains(towersScript.archerTowerLevel1Prefab.name))
+    {
+        upgradeCost = 80;
+    }
+    else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name))
+    {
+        upgradeCost = 120;
+    }
+    else if (currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name))
+    {
+        upgradeCost = 160;
+    }
+    else if (currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name))
+    {
+        upgradeCost = 220;
+    }
+    else if (currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
+    {
+        upgradeCost = 100;
+    }
+    else if (currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
+    {
+        upgradeCost = 150;
+    }
+
+    if (towersScript.Coins < upgradeCost)
+    {
+        yield break;
+    }
+
+    if (upgradeProgressBar != null)
+    {
+        upgradeProgressBar.gameObject.SetActive(true);
+        upgradeProgressBarImage.gameObject.SetActive(true);
+        upgradeProgressBar.fillAmount = 1f;
+    }
+
+    float upgradeTime = 0f;
+
+    if (currentTower.name.Contains(towersScript.archerTowerLevel1Prefab.name) ||
+        currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name) ||
+        currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
+    {
+        upgradeTime = 3f; 
+    }
+    else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name) ||
+             currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name) ||
+             currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
+    {
+        upgradeTime = 5f;
+    }
+    else
     {
         if (upgradeProgressBar != null)
         {
-            upgradeProgressBar.gameObject.SetActive(true);
-            upgradeProgressBarImage.gameObject.SetActive(true);
-            upgradeProgressBar.fillAmount = 1f;
+            upgradeProgressBar.fillAmount = 0f;
+            upgradeProgressBar.gameObject.SetActive(false);
+            upgradeProgressBarImage.gameObject.SetActive(false);
         }
+        yield break;
+    }
 
-        float upgradeTime = 0f;
+    float elapsedTime = 0f;
+    currentCellPosition = FindNearestCell(currentTower.transform.position);
+    Vector3 initialCameraCell = FindNearestCell(Camera.main.transform.position);
 
-        if (currentTower.name.Contains(towersScript.archerTowerLevel1Prefab.name) ||
-            currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name) ||
-            currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
-        {
-            upgradeTime = 3f; // Время улучшения с 1 на 2 уровень
-        }
-        else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name) ||
-                 currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name) ||
-                 currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
-        {
-            upgradeTime = 5f; // Время улучшения с 2 на 3 уровень
-        }
-        else
+    while (elapsedTime < upgradeTime)
+    {
+        if (currentTower == null)
         {
             if (upgradeProgressBar != null)
             {
@@ -156,41 +259,40 @@ public class TowerMenu : MonoBehaviour
             yield break;
         }
 
-        float elapsedTime = 0f;
-        currentCellPosition = FindNearestCell(currentTower.transform.position);
+        Vector3 newCellPosition = FindNearestCell(currentTower.transform.position);
+        Vector3 currentCameraCell = FindNearestCell(Camera.main.transform.position);
 
-        while (elapsedTime < upgradeTime)
+        if (newCellPosition != currentCellPosition || currentCameraCell != initialCameraCell)
         {
-            Vector3 newCellPosition = FindNearestCell(currentTower.transform.position);
-
-            if (newCellPosition != currentCellPosition)
-            {
-                if (upgradeProgressBar != null)
-                {
-                    upgradeProgressBar.fillAmount = 0f;
-                    upgradeProgressBar.gameObject.SetActive(false);
-                    upgradeProgressBarImage.gameObject.SetActive(false);
-                }
-                yield break;
-            }
-
-            elapsedTime += Time.deltaTime;
             if (upgradeProgressBar != null)
             {
-                upgradeProgressBar.fillAmount = 1f - (elapsedTime / upgradeTime);
+                upgradeProgressBar.fillAmount = 0f;
+                upgradeProgressBar.gameObject.SetActive(false);
+                upgradeProgressBarImage.gameObject.SetActive(false);
             }
-            yield return null;
+            yield break;
         }
 
+        elapsedTime += Time.deltaTime;
         if (upgradeProgressBar != null)
         {
-            upgradeProgressBar.fillAmount = 0f;
-            upgradeProgressBar.gameObject.SetActive(false);
-            upgradeProgressBarImage.gameObject.SetActive(false);
+            upgradeProgressBar.fillAmount = 1f - (elapsedTime / upgradeTime);
         }
-
-        PerformUpgrade();
+        yield return null;
     }
+
+    if (upgradeProgressBar != null)
+    {
+        upgradeProgressBar.fillAmount = 0f;
+        upgradeProgressBar.gameObject.SetActive(false);
+        upgradeProgressBarImage.gameObject.SetActive(false);
+    }
+
+    towersScript.Coins -= upgradeCost;
+    towersScript.Coinss.text = towersScript.Coins.ToString();
+
+    PerformUpgrade();
+}
 
     private void PerformUpgrade()
     {
