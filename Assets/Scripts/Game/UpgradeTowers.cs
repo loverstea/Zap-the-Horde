@@ -8,14 +8,23 @@ public class TowerMenu : MonoBehaviour
     public GameObject TowersMenu;
     public GameObject TowerUI;
     public GameObject currentTower;
+    public Image upgradeProgressBar;
+    public Image upgradeProgressBarImage;
 
     private bool isNearTower = false;
     private Towers towersScript;
+    private Vector3 currentCellPosition;
 
     void Start()
     {
         TowersMenu.SetActive(false);
         TowerUI.SetActive(false);
+
+        if (upgradeProgressBar != null)
+        {
+            upgradeProgressBar.fillAmount = 0f;
+            upgradeProgressBarImage.gameObject.SetActive(false);
+        }
 
         GameObject eventSystem = GameObject.Find("EventSystem");
         if (eventSystem != null)
@@ -109,6 +118,82 @@ public class TowerMenu : MonoBehaviour
     {
         if (currentTower != null)
         {
+            StartCoroutine(UpgradeTowerWithDelay());
+        }
+    }
+
+    IEnumerator UpgradeTowerWithDelay()
+    {
+        if (upgradeProgressBar != null)
+        {
+            upgradeProgressBar.gameObject.SetActive(true);
+            upgradeProgressBarImage.gameObject.SetActive(true);
+            upgradeProgressBar.fillAmount = 1f;
+        }
+
+        float upgradeTime = 0f;
+
+        if (currentTower.name.Contains(towersScript.archerTowerLevel1Prefab.name) ||
+            currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name) ||
+            currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
+        {
+            upgradeTime = 3f; // Время улучшения с 1 на 2 уровень
+        }
+        else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name) ||
+                 currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name) ||
+                 currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
+        {
+            upgradeTime = 5f; // Время улучшения с 2 на 3 уровень
+        }
+        else
+        {
+            if (upgradeProgressBar != null)
+            {
+                upgradeProgressBar.fillAmount = 0f;
+                upgradeProgressBar.gameObject.SetActive(false);
+                upgradeProgressBarImage.gameObject.SetActive(false);
+            }
+            yield break;
+        }
+
+        float elapsedTime = 0f;
+        currentCellPosition = FindNearestCell(currentTower.transform.position);
+
+        while (elapsedTime < upgradeTime)
+        {
+            Vector3 newCellPosition = FindNearestCell(currentTower.transform.position);
+
+            if (newCellPosition != currentCellPosition)
+            {
+                if (upgradeProgressBar != null)
+                {
+                    upgradeProgressBar.fillAmount = 0f;
+                    upgradeProgressBar.gameObject.SetActive(false);
+                    upgradeProgressBarImage.gameObject.SetActive(false);
+                }
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+            if (upgradeProgressBar != null)
+            {
+                upgradeProgressBar.fillAmount = 1f - (elapsedTime / upgradeTime);
+            }
+            yield return null;
+        }
+
+        if (upgradeProgressBar != null)
+        {
+            upgradeProgressBar.fillAmount = 0f;
+            upgradeProgressBar.gameObject.SetActive(false);
+            upgradeProgressBarImage.gameObject.SetActive(false);
+        }
+
+        PerformUpgrade();
+    }
+
+    private void PerformUpgrade()
+    {
         Vector3 position = currentTower.transform.position;
         Quaternion rotation = currentTower.transform.rotation;
 
@@ -116,42 +201,36 @@ public class TowerMenu : MonoBehaviour
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.archerTowerLevel2Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.archerTowerLevel3Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.magicTowerLevel2Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.magicTowerLevel3Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.IceTowerLevel2Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.IceTowerLevel3Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.archerTowerLevel3Prefab.name) ||
@@ -159,7 +238,6 @@ public class TowerMenu : MonoBehaviour
                  currentTower.name.Contains(towersScript.IceTowerLevel3Prefab.name))
         {
             towersScript.TowerCancelSound.Play();
-        }
         }
     }
 
