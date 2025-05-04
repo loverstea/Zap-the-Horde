@@ -26,14 +26,4 @@ public class GameManager : MonoBehaviour
     {
         PlayerHp = 27; 
     }
-
-    private void Update()
-    {
-        Hp.text = "Hp: " + PlayerHp;
-
-        Coinss.text = "Coins: " + Coins;
-    }
-
-    
-
 }
