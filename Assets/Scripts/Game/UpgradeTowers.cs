@@ -2,20 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class TowerMenu : MonoBehaviour
 {
     public GameObject TowersMenu;
     public GameObject TowerUI;
     public GameObject currentTower;
+    public Image upgradeProgressBar;
+    public Image upgradeProgressBarImage;
 
     private bool isNearTower = false;
     private Towers towersScript;
+    private Vector3 currentCellPosition;
+
+    public TextMeshProUGUI UpgradeText;
 
     void Start()
     {
         TowersMenu.SetActive(false);
         TowerUI.SetActive(false);
+
+        if (upgradeProgressBar != null)
+        {
+            upgradeProgressBar.fillAmount = 0f;
+            upgradeProgressBarImage.gameObject.SetActive(false);
+        }
 
         GameObject eventSystem = GameObject.Find("EventSystem");
         if (eventSystem != null)
@@ -54,11 +66,55 @@ public class TowerMenu : MonoBehaviour
                 TowersMenu.SetActive(false);
                 TowerUI.SetActive(false);
             }
+
+            UpdateUpgradeText();
         }
         else
         {
             TowerUI.SetActive(false);
         }
+    }
+
+    private void UpdateUpgradeText()
+{
+    if (currentTower == null)
+    {
+        UpgradeText.text = "Выберите башню для улучшения";
+        return;
+    }
+
+    int upgradeCost = 0;
+
+    if (currentTower.name.Contains(towersScript.archerTowerLevel1Prefab.name))
+    {
+        upgradeCost = 80;
+    }
+    else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name))
+    {
+        upgradeCost = 120;
+    }
+    else if (currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name))
+    {
+        upgradeCost = 160;
+    }
+    else if (currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name))
+    {
+        upgradeCost = 220;
+    }
+    else if (currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
+    {
+        upgradeCost = 100;
+    }
+    else if (currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
+    {
+        upgradeCost = 150;
+    }
+    else
+    {
+        UpgradeText.text = "MAX";
+        return;
+    }
+    UpgradeText.text = "" + upgradeCost;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -79,6 +135,13 @@ public class TowerMenu : MonoBehaviour
 
             TowersMenu.SetActive(false);
             TowerUI.SetActive(false);
+
+            if (upgradeProgressBar != null)
+        {
+            upgradeProgressBar.fillAmount = 0f;
+            upgradeProgressBar.gameObject.SetActive(false);
+            upgradeProgressBarImage.gameObject.SetActive(false);
+        }
         }
     }
 
@@ -109,6 +172,130 @@ public class TowerMenu : MonoBehaviour
     {
         if (currentTower != null)
         {
+            StartCoroutine(UpgradeTowerWithDelay());
+        }
+    }
+
+    IEnumerator UpgradeTowerWithDelay()
+{
+    int upgradeCost = 0;
+
+    if (currentTower.name.Contains(towersScript.archerTowerLevel1Prefab.name))
+    {
+        upgradeCost = 80;
+    }
+    else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name))
+    {
+        upgradeCost = 120;
+    }
+    else if (currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name))
+    {
+        upgradeCost = 160;
+    }
+    else if (currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name))
+    {
+        upgradeCost = 220;
+    }
+    else if (currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
+    {
+        upgradeCost = 100;
+    }
+    else if (currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
+    {
+        upgradeCost = 150;
+    }
+
+    if (towersScript.Coins < upgradeCost)
+    {
+        yield break;
+    }
+
+    if (upgradeProgressBar != null)
+    {
+        upgradeProgressBar.gameObject.SetActive(true);
+        upgradeProgressBarImage.gameObject.SetActive(true);
+        upgradeProgressBar.fillAmount = 1f;
+    }
+
+    float upgradeTime = 0f;
+
+    if (currentTower.name.Contains(towersScript.archerTowerLevel1Prefab.name) ||
+        currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name) ||
+        currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
+    {
+        upgradeTime = 3f; 
+    }
+    else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name) ||
+             currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name) ||
+             currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
+    {
+        upgradeTime = 5f;
+    }
+    else
+    {
+        if (upgradeProgressBar != null)
+        {
+            upgradeProgressBar.fillAmount = 0f;
+            upgradeProgressBar.gameObject.SetActive(false);
+            upgradeProgressBarImage.gameObject.SetActive(false);
+        }
+        yield break;
+    }
+
+    float elapsedTime = 0f;
+    currentCellPosition = FindNearestCell(currentTower.transform.position);
+    Vector3 initialCameraCell = FindNearestCell(Camera.main.transform.position);
+
+    while (elapsedTime < upgradeTime)
+    {
+        if (currentTower == null)
+        {
+            if (upgradeProgressBar != null)
+            {
+                upgradeProgressBar.fillAmount = 0f;
+                upgradeProgressBar.gameObject.SetActive(false);
+                upgradeProgressBarImage.gameObject.SetActive(false);
+            }
+            yield break;
+        }
+
+        Vector3 newCellPosition = FindNearestCell(currentTower.transform.position);
+        Vector3 currentCameraCell = FindNearestCell(Camera.main.transform.position);
+
+        if (newCellPosition != currentCellPosition || currentCameraCell != initialCameraCell)
+        {
+            if (upgradeProgressBar != null)
+            {
+                upgradeProgressBar.fillAmount = 0f;
+                upgradeProgressBar.gameObject.SetActive(false);
+                upgradeProgressBarImage.gameObject.SetActive(false);
+            }
+            yield break;
+        }
+
+        elapsedTime += Time.deltaTime;
+        if (upgradeProgressBar != null)
+        {
+            upgradeProgressBar.fillAmount = 1f - (elapsedTime / upgradeTime);
+        }
+        yield return null;
+    }
+
+    if (upgradeProgressBar != null)
+    {
+        upgradeProgressBar.fillAmount = 0f;
+        upgradeProgressBar.gameObject.SetActive(false);
+        upgradeProgressBarImage.gameObject.SetActive(false);
+    }
+
+    towersScript.Coins -= upgradeCost;
+    towersScript.Coinss.text = towersScript.Coins.ToString();
+
+    PerformUpgrade();
+}
+
+    private void PerformUpgrade()
+    {
         Vector3 position = currentTower.transform.position;
         Quaternion rotation = currentTower.transform.rotation;
 
@@ -116,42 +303,36 @@ public class TowerMenu : MonoBehaviour
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.archerTowerLevel2Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.archerTowerLevel3Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.magicTowerLevel2Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.magicTowerLevel3Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.IceTowerLevel2Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
         {
             Destroy(currentTower);
             currentTower = Instantiate(towersScript.IceTowerLevel3Prefab, position, rotation);
-
             towersScript.towerUpgradeSound.Play();
         }
         else if (currentTower.name.Contains(towersScript.archerTowerLevel3Prefab.name) ||
@@ -159,7 +340,6 @@ public class TowerMenu : MonoBehaviour
                  currentTower.name.Contains(towersScript.IceTowerLevel3Prefab.name))
         {
             towersScript.TowerCancelSound.Play();
-        }
         }
     }
 

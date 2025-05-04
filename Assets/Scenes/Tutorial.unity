@@ -261,6 +261,8 @@ MonoBehaviour:
   TowersMenu: {fileID: 1978142225}
   TowerUI: {fileID: 671012241}
   currentTower: {fileID: 0}
+  upgradeProgressBar: {fileID: 0}
+  upgradeProgressBarImage: {fileID: 0}
 --- !u!4 &3989582 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1064027434430998517, guid: fa75fc7b37b6431429db8befdb72f927, type: 3}
@@ -12190,9 +12192,10 @@ RectTransform:
   - {fileID: 671012242}
   - {fileID: 1917608898}
   - {fileID: 1870099668}
+  - {fileID: 1978142226}
   - {fileID: 610017544}
   - {fileID: 853289177}
-  - {fileID: 1978142226}
+  - {fileID: 1756235289}
   - {fileID: 296404642}
   - {fileID: 1414150989}
   - {fileID: 420655041}
@@ -21674,7 +21677,7 @@ MonoBehaviour:
   GunPrefab: {fileID: 949530958}
   firePoint: {fileID: 2123606111}
   fireRate: 1
-  bulletSpeed: 40
+  bulletSpeed: 80
   bulletDamage: 10
   bulletLifetime: 2
   gunImage: {fileID: 1765324212}
@@ -36713,6 +36716,81 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -6101029800521767543, guid: fa80593c653d19245a5227740fb66439, type: 3}
+--- !u!1 &1756235286
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1756235289}
+  - component: {fileID: 1756235288}
+  - component: {fileID: 1756235287}
+  m_Layer: 5
+  m_Name: UpgradeProgressBar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1756235287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756235286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 2100000, guid: 125cb55b44b24c4393181402bc6200e6, type: 2}
+  m_Color: {r: 0.19055228, g: 0.6037736, b: 0.08259169, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 3
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 0
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 1
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1756235288
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756235286}
+  m_CullTransparentMesh: 1
+--- !u!224 &1756235289
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756235286}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 685704516}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 4.9}
+  m_SizeDelta: {x: 339.86, y: 30.54}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1756883060 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9135896348263838652, guid: fa80593c653d19245a5227740fb66439, type: 3}
@@ -40807,6 +40885,8 @@ MonoBehaviour:
   TowersMenu: {fileID: 1978142225}
   TowerUI: {fileID: 671012241}
   currentTower: {fileID: 0}
+  upgradeProgressBar: {fileID: 1756235287}
+  upgradeProgressBarImage: {fileID: 610017545}
 --- !u!1 &1977627800 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6605671601181609358, guid: fa80593c653d19245a5227740fb66439, type: 3}
