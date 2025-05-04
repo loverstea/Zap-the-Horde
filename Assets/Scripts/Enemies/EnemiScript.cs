@@ -13,6 +13,10 @@ public class EnemiScript : MonoBehaviour
 
     private GameManager gameManager;
 
+    private int currentIndex = 0;
+
+    private float stopDistance = 0.3f;
+
     [SerializeField]
     private int damage;
     [SerializeField]
@@ -23,23 +27,35 @@ public class EnemiScript : MonoBehaviour
 
     private void Start()
     {
+        gameManager = GameManager.instance;
+        
         navMeshAgent = GetComponent<NavMeshAgent>();
+        if (gameManager.waypoints.Length > 0 )
+        {
+            navMeshAgent.SetDestination(gameManager.waypoints[currentIndex].position);
+        }
         if (OBJ != null)
         {
             DropCoin = OBJ.Coins;
             Hp = OBJ.HP;
             damage = OBJ.Attacka;
         }
-        gameManager = GameManager.instance;
 
     }
 
     void Update()
     {
-        if (navMeshAgent != null)
+        
+        if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= stopDistance)
         {
-            navMeshAgent.SetDestination(gameManager.transform.position);
+            if (gameManager.waypoints.Length > currentIndex)
+            {
+                currentIndex = currentIndex + 1;
+                navMeshAgent.SetDestination(gameManager.waypoints[currentIndex].position);
+            }
+            
         }
+        
         if (Hp <= 0)
         {
             gameManager.Coins += DropCoin;  

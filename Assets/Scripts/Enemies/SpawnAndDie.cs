@@ -20,16 +20,16 @@ public class SpawnAndDie : MonoBehaviour
     {
         if (count > 0)
         {
-        timer += Time.deltaTime;
-        if (timer >= spawnInterval)
-        {
+            timer += Time.deltaTime;
+            if (timer >= spawnInterval)
+            {
             SpawnRandomEnemy();
             timer = 0f;
-        }
+            }
             
         }
 
-        if (count <= 0)
+        else
         {
             ways++;
             WayCoins *= 1.5;

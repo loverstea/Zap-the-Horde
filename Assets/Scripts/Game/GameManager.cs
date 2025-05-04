@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
 
     public Text Coinss;
 
+    public Transform[] waypoints;
+
     public static GameManager instance;
 
     private void Awake()

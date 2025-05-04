@@ -1214,7 +1214,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1695502807786446131, guid: c73a559184154c75991d095521bdea87, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -11.5
+      value: -0.8
       objectReference: {fileID: 0}
     - target: {fileID: 1695502807786446131, guid: c73a559184154c75991d095521bdea87, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1257,6 +1257,10 @@ PrefabInstance:
       value: BeholderPolyartDefault
       objectReference: {fileID: 0}
     - target: {fileID: 1695502807786733843, guid: c73a559184154c75991d095521bdea87, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695502807786733843, guid: c73a559184154c75991d095521bdea87, type: 3}
       propertyPath: m_TagString
       value: Untagged
       objectReference: {fileID: 0}
@@ -1287,8 +1291,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OBJ: {fileID: 0}
-  finish: {fileID: 680124804}
-  gameManager: {fileID: 680124806}
+  npc: 0
+  waypoints: []
+  stopDistance: 0
   damage: 3
   Hp: 2
   DropCoin: 10

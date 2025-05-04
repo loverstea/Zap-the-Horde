@@ -1616,8 +1616,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OBJ: {fileID: 11400000, guid: 66a791a103936264a85efe789bbcdf9f, type: 2}
-  finish: {fileID: 0}
-  gameManager: {fileID: 0}
+  npc: 0
+  waypoints: []
+  stopDistance: 0
   damage: 1
   Hp: 0
   DropCoin: 0
