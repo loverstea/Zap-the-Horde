@@ -18,7 +18,7 @@ public class SpawnAndDie : MonoBehaviour
 
     void Update()
     {
-        if (count > 0)
+        if (count < maxCount)
         {
             timer += Time.deltaTime;
             if (timer >= spawnInterval)

@@ -4,82 +4,88 @@ using UnityEngine;
 
 public class TowersAttack : MonoBehaviour
 {
-    public GameObject projectilePrefab; // Префаб снаряда
-    public Transform firePoint; // Точка выстрела
-    public float fireRate = 1f; // Скорость стрельбы (в секундах)
-    public float projectileSpeed = 10f; // Скорость снаряда
-    public float attackRange = 8f; // Радиус атаки
-    public LayerMask enemyLayer; // Слой врагов
+    public float fireRate = 1f; 
+    public float attackRange = 0f;
+    public float nextFire = 0f;
 
-    private float nextFireTime = 0f; // Время следующего выстрела
+    public int bulletDamage = 0;
+
+    public GameObject RotatingPart;
+    public GameObject Arrow;
 
     void Update()
     {
-        if (Time.time >= nextFireTime)
+        
+        if (Time.time >= nextFire)
         {
-            Collider[] enemiesInRange = Physics.OverlapSphere(transform.position, attackRange, enemyLayer);
+            Arrow.SetActive(true);
+            Collider[] enemiesInRange = Physics.OverlapSphere(transform.position, attackRange, LayerMask.GetMask("Enemy"));
 
             if (enemiesInRange.Length > 0)
             {
-                Transform target = GetClosestEnemy(enemiesInRange);
+                Transform target = GetClosestToFinish(enemiesInRange);
                 if (target != null)
                 {
-                    FireProjectile(target);
-                    nextFireTime = Time.time + fireRate;
+                    Vector3 direction = target.position - RotatingPart.transform.position;
 
-                    // Отключаем префаб башни на время перезарядки
-                    StartCoroutine(HandlePrefabVisibility());
+    direction.y = 0;
+
+    if (direction.sqrMagnitude > 0.01f) 
+    {
+        Quaternion lookRotation = Quaternion.LookRotation(direction, Vector3.up);
+
+        RotatingPart.transform.rotation = lookRotation * Quaternion.Euler(-90f, 0f, 0f); 
+    }
+
+                    Attack(target);
+
+                    nextFire = Time.time + fireRate;
                 }
             }
         }
     }
 
-    void FireProjectile(Transform target)
-    {
-        if (projectilePrefab != null && firePoint != null)
-        {
-            GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
-            Rigidbody rb = projectile.GetComponent<Rigidbody>();
-
-            if (rb != null)
-            {
-                Vector3 direction = (target.position - firePoint.position).normalized;
-                rb.velocity = direction * projectileSpeed;
-            }
-        }
-    }
-
-    Transform GetClosestEnemy(Collider[] enemies)
+        Transform GetClosestToFinish(Collider[] enemies)
     {
         Transform closestEnemy = null;
-        float shortestDistance = Mathf.Infinity;
-
-        foreach (Collider enemy in enemies)
+        float highestProgress = -1f;
+    
+        foreach (Collider enemyCollider in enemies)
         {
-            float distanceToEnemy = Vector3.Distance(transform.position, enemy.transform.position);
-            if (distanceToEnemy < shortestDistance)
+            EnemiScript enemy = enemyCollider.GetComponent<EnemiScript>();
+            if (enemy != null)
             {
-                shortestDistance = distanceToEnemy;
-                closestEnemy = enemy.transform;
+                float progress = enemy.GetProgress();
+                if (progress > highestProgress)
+                {
+                    highestProgress = progress;
+                    closestEnemy = enemy.transform;
+                }
             }
         }
-
+    
         return closestEnemy;
     }
 
-    IEnumerator HandlePrefabVisibility()
+    void Attack(Transform target)
     {
-        if (projectilePrefab != null)
+        if (Time.timeScale != 0f)
         {
-            projectilePrefab.SetActive(false); // Прячем префаб
-            yield return new WaitForSeconds(fireRate); // Ждем время перезарядки
-            projectilePrefab.SetActive(true); // Включаем префаб
+            EnemiScript enemy = target.GetComponent<EnemiScript>();
+            if (enemy != null)
+            {
+                Arrow.SetActive(false);
+                enemy.EnemyHp -= bulletDamage;
+                if (enemy.EnemyHp <= 0)
+                {
+                    Destroy(target.gameObject);
+                }
+            }
         }
     }
 
     private void OnDrawGizmosSelected()
     {
-        // Визуализация радиуса атаки в редакторе
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }

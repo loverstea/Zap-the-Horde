@@ -17,13 +17,13 @@ public class EnemiScript : MonoBehaviour
 
     private float stopDistance = 0.3f;
 
+
     [SerializeField]
     private int damage;
     [SerializeField]
-    private int Hp;
+    public int EnemyHp;
     [SerializeField]
     private int DropCoin;
-
 
     private void Start()
     {
@@ -37,7 +37,7 @@ public class EnemiScript : MonoBehaviour
         if (OBJ != null)
         {
             DropCoin = OBJ.Coins;
-            Hp = OBJ.HP;
+            EnemyHp = OBJ.HP;
             damage = OBJ.Attacka;
         }
 
@@ -56,19 +56,24 @@ public class EnemiScript : MonoBehaviour
             
         }
         
-        if (Hp <= 0)
+        if (EnemyHp <= 0)
         {
             gameManager.Coins += DropCoin;  
             Object.Destroy(gameObject);
         }
     }
+    public float GetProgress()
+    {
+
+    return currentIndex + (1f - Mathf.Clamp01(navMeshAgent.remainingDistance / navMeshAgent.stoppingDistance));
+   }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             Attack();
-            Hp = 0;
+            EnemyHp = 0;
         }
     }
 
