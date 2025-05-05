@@ -1408,6 +1408,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemies:
   - {fileID: 11400000, guid: 66a791a103936264a85efe789bbcdf9f, type: 2}
+  - {fileID: 11400000, guid: 461cea529f7c1c940a193589b5ceec7e, type: 2}
   spawnPoint: {fileID: 1989079782}
   spawnInterval: 2
   count: 1
