@@ -23,6 +23,7 @@ public class Towers : MonoBehaviour
     public AudioSource towerSelectionSound;
     public AudioSource TowerCancelSound;
 
+    private GameManager gameManager;
     public Transform playerTransform;
 
     public LayerMask gridLayerMask;
@@ -58,15 +59,14 @@ public class Towers : MonoBehaviour
     private Vector3 lastCameraPosition;
     private Vector3 currentCellPosition;
 
-    public int Coins;
-    public TextMeshProUGUI Coinss;
-
     public int AtcherTowerCost = 100;
     public int MagicTowerCost = 200;
     public int IceTowerCost = 170;
 
     void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
+        
         Drawning.SetActive(false);
         mainCamera = Camera.main;
         GenerateCells();
@@ -177,8 +177,6 @@ public class Towers : MonoBehaviour
         {
             StartCoroutine(BuildTowerWithDelay());
         }
-
-        Coinss.text = " " + Coins;
     }
 
        IEnumerator BuildTowerWithDelay()
@@ -198,7 +196,7 @@ public class Towers : MonoBehaviour
         towerCost = IceTowerCost;
     }
 
-    if (Coins < towerCost)
+    if (gameManager.Coins < towerCost)
     {
         yield break;
     }
@@ -265,8 +263,7 @@ public class Towers : MonoBehaviour
         buildProgressBarImage.gameObject.SetActive(false);
     }
 
-    Coins -= towerCost;
-    Coinss.text = Coins.ToString();
+    gameManager.Coins -= towerCost;
 
     PlaceTower();
     isBuildingTower = false;

@@ -11,8 +11,8 @@ public class SpawnAndDie : MonoBehaviour
     private float timer;
     public int count = 0;
     public Transform finishPoint;
-    public int maxCount = 10;
-    public int ways = 1;
+    public int maxCount = 1;
+    public int ways = 5;
     public double WayCoins;
     private float WaySWaiter;
 

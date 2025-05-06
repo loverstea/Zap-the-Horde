@@ -16,17 +16,15 @@ public class EnemiScript : MonoBehaviour
     private int currentIndex = 0;
 
     private float stopDistance = 0.3f;
-
-
-    [SerializeField]
     private int damage;
     [SerializeField]
     public int EnemyHp;
     [SerializeField]
-    private int DropCoin;
+    public int DropCoin;
 
     private void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
         gameManager = GameManager.instance;
         
         navMeshAgent = GetComponent<NavMeshAgent>();

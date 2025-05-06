@@ -15,11 +15,13 @@ public class TowerMenu : MonoBehaviour
     private bool isNearTower = false;
     private Towers towersScript;
     private Vector3 currentCellPosition;
-
+    private GameManager gameManager;
     public TextMeshProUGUI UpgradeText;
 
     void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
+
         TowersMenu.SetActive(false);
         TowerUI.SetActive(false);
 
@@ -79,7 +81,6 @@ public class TowerMenu : MonoBehaviour
 {
     if (currentTower == null)
     {
-        UpgradeText.text = "Выберите башню для улучшения";
         return;
     }
 
@@ -205,7 +206,7 @@ public class TowerMenu : MonoBehaviour
         upgradeCost = 150;
     }
 
-    if (towersScript.Coins < upgradeCost)
+    if (gameManager.Coins < upgradeCost)
     {
         yield break;
     }
@@ -288,8 +289,7 @@ public class TowerMenu : MonoBehaviour
         upgradeProgressBarImage.gameObject.SetActive(false);
     }
 
-    towersScript.Coins -= upgradeCost;
-    towersScript.Coinss.text = towersScript.Coins.ToString();
+    gameManager.Coins -= upgradeCost;
 
     PerformUpgrade();
 }
