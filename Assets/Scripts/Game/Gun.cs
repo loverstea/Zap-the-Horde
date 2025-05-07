@@ -19,6 +19,8 @@ public class Gun : MonoBehaviour
 
     public Image gunImage; 
 
+    public Image reloadImage;
+
     void Start()
     {
         if(GunPrefab.activeSelf)
@@ -26,6 +28,9 @@ public class Gun : MonoBehaviour
             GunPrefab.SetActive(false);
             isGunSelected = false;
         }
+
+        if (reloadImage != null)
+            reloadImage.gameObject.SetActive(false);
     }
 
     void Update()
@@ -85,6 +90,13 @@ void FireBullet()
 {
     if (Time.timeScale != 0f)
     {
+        if (reloadImage != null)
+        {
+            reloadImage.fillAmount = 1f;
+            reloadImage.gameObject.SetActive(true);
+            StartCoroutine(ReloadCoroutine());
+        }
+
         if (Time.time >= nextFireTime)
         {
             nextFireTime = Time.time + 1f / fireRate;
@@ -109,6 +121,21 @@ void FireBullet()
         }
     }
 }
+
+        IEnumerator ReloadCoroutine()
+    {
+        float reloadTime = 1f / fireRate;
+        float elapsed = 0f;
+        while (elapsed < reloadTime)
+        {
+            elapsed += Time.deltaTime;
+            if (reloadImage != null)
+                reloadImage.fillAmount = 1f - (elapsed / reloadTime);
+            yield return null;
+        }
+        if (reloadImage != null)
+            reloadImage.gameObject.SetActive(false);
+    }
 
     void HighlightGunImage()
     {

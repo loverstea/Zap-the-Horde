@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class SpawnAndDie : MonoBehaviour
 {
+    private EnemiScript enemyScript;
+    public float morehp = 1.5f; 
+
     public ScriptableOBJ[] enemies;
     public Transform spawnPoint;
 
@@ -36,14 +39,21 @@ public class SpawnAndDie : MonoBehaviour
             spawningWave = false;
             yield return new WaitForSeconds(timeBetweenWaves);
             enemiesPerWave = Mathf.CeilToInt(enemiesPerWave * 1.5f);
+            morehp *= 2f;
             spawnInterval *= 0.9f;
         }
     }
 
     void SpawnRandomEnemy()
+{
+    int index = Random.Range(0, enemies.Length);
+    ScriptableOBJ enemyData = enemies[index];
+    GameObject enemyObj = Instantiate(enemyData.prefab, spawnPoint.position, Quaternion.identity);
+    EnemiScript enemyScript = enemyObj.GetComponent<EnemiScript>();
+
+    if (enemyScript != null)
     {
-        int index = Random.Range(0, enemies.Length);
-        ScriptableOBJ enemyData = enemies[index];
-        Instantiate(enemyData.prefab, spawnPoint.position, Quaternion.identity);
+        enemyScript.EnemyHp = Mathf.CeilToInt(enemyData.HP * morehp);
     }
+}
 }

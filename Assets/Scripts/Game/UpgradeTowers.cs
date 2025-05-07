@@ -12,6 +12,8 @@ public class TowerMenu : MonoBehaviour
     public Image upgradeProgressBar;
     public Image upgradeProgressBarImage;
 
+    private GameObject area; 
+
     private bool isNearTower = false;
     private Towers towersScript;
     private Vector3 currentCellPosition;
@@ -119,13 +121,51 @@ public class TowerMenu : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider other)
+{
+    if (other.CompareTag("Tower"))
     {
-        if (other.CompareTag("Tower"))
+        isNearTower = true;
+        currentTower = other.gameObject;
+        if (towersScript.AreaofAttackPrefab != null && currentTower != null)
         {
-            isNearTower = true;
-            currentTower = other.gameObject;
+            float radius = 3f;
+
+            if (currentTower.name.Contains(towersScript.archerTowerLevel1Prefab.name))
+                radius = 12f;
+            else if (currentTower.name.Contains(towersScript.archerTowerLevel2Prefab.name))
+                radius = 18f;
+            else if (currentTower.name.Contains(towersScript.archerTowerLevel3Prefab.name))
+                radius = 24f;
+            else if (currentTower.name.Contains(towersScript.magicTowerLevel1Prefab.name))
+                radius = 8f;
+            else if (currentTower.name.Contains(towersScript.magicTowerLevel2Prefab.name))
+                radius = 10f;
+            else if (currentTower.name.Contains(towersScript.magicTowerLevel3Prefab.name))
+                radius = 12f;
+            else if (currentTower.name.Contains(towersScript.IceTowerLevel1Prefab.name))
+                radius = 8f;
+            else if (currentTower.name.Contains(towersScript.IceTowerLevel2Prefab.name))
+                radius = 10f;
+            else if (currentTower.name.Contains(towersScript.IceTowerLevel3Prefab.name))
+                radius = 12f;
+
+            if (area != null)
+            {
+                Destroy(area);
+                area = null;
+            }
+
+            area = Instantiate(towersScript.AreaofAttackPrefab);
+            area.transform.position = currentTower.transform.position;
+            area.transform.localScale = new Vector3(radius * 2, 0.5f, radius * 2);
+
+            Renderer rend = area.GetComponent<Renderer>();
+            if (rend != null && towersScript.yellowTransparentMaterial != null)
+                rend.material = towersScript.yellowTransparentMaterial;
+            area.SetActive(true);
         }
     }
+}
 
     private void OnTriggerExit(Collider other)
     {
@@ -136,6 +176,12 @@ public class TowerMenu : MonoBehaviour
 
             TowersMenu.SetActive(false);
             TowerUI.SetActive(false);
+
+            if (area != null)
+            {
+                Destroy(area);
+                area = null;
+            }
 
             if (upgradeProgressBar != null)
         {

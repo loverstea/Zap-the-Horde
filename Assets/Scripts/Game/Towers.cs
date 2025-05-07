@@ -51,9 +51,9 @@ public class Towers : MonoBehaviour
 
     public GameObject AreaofAttackPrefab;
     private GameObject currentAreaOfAttack;
-    private float areaOfAttackRadiusArcher = 12f;
-    private float areaOfAttackRadiusMagic = 8f;
-    private float areaOfAttackRadiusIce = 6f;
+    public float areaOfAttackRadiusArcher = 12f;
+    public float areaOfAttackRadiusMagic = 8f;
+    public float areaOfAttackRadiusIce = 6f;
 
     public Material greenTransparentMaterial;
     public Material yellowTransparentMaterial;
@@ -542,7 +542,7 @@ public class Towers : MonoBehaviour
         towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 230f / 255f);
         towerImage.rectTransform.sizeDelta = new Vector2(300, 300);
         Drawning.SetActive(true);
-        // Создаём Area если нужно
+
         if (currentAreaOfAttack == null && currentTower != null)
         {
             float radius = 3f;

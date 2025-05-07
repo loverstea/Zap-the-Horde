@@ -9,7 +9,7 @@ using UnityEngine.AI;
 [CreateAssetMenu(fileName ="News Script", menuName = "Enemies", order = 1)]
 public class ScriptableOBJ : ScriptableObject
 { 
-    
+    public int baseHp;
     public int HP;
     
     public int Attacka;
