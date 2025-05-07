@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemiScript : MonoBehaviour
 {
@@ -12,7 +13,8 @@ public class EnemiScript : MonoBehaviour
     private NavMeshAgent navMeshAgent;
 
     private GameManager gameManager;
-
+    
+    public Image HpBar;
     private int currentIndex = 0;
 
     private float stopDistance = 0.3f;
@@ -24,6 +26,7 @@ public class EnemiScript : MonoBehaviour
 
     private void Start()
     {
+
         gameManager = FindObjectOfType<GameManager>();
         gameManager = GameManager.instance;
         
@@ -46,19 +49,19 @@ public class EnemiScript : MonoBehaviour
         
         if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= stopDistance)
         {
-            if (gameManager.waypoints.Length > currentIndex)
+            if (gameManager.waypoints.Length > currentIndex + 1)
             {
-                currentIndex = currentIndex + 1;
+                currentIndex++;
                 navMeshAgent.SetDestination(gameManager.waypoints[currentIndex].position);
             }
-            
-        }
-        
-        if (EnemyHp <= 0)
-        {
-            gameManager.Coins += DropCoin;  
-            Object.Destroy(gameObject);
-        }
+
+    if (EnemyHp <= 0)
+    {
+        if (gameManager != null)
+            gameManager.Coins += DropCoin;
+        Destroy(gameObject);
+    }
+    }
     }
     public float GetProgress()
     {
@@ -71,7 +74,7 @@ public class EnemiScript : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Attack();
-            EnemyHp = 0;
+            Destroy(gameObject);
         }
     }
 

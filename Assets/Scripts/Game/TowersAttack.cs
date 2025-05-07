@@ -79,7 +79,7 @@ public class TowersAttack : MonoBehaviour
                 if (enemy.EnemyHp <= 0)
                 {
                     GameManager.instance.Coins += enemy.DropCoin;
-                    Destroy(target.gameObject);
+                    Destroy(enemy.gameObject);
                 }
             }
         }

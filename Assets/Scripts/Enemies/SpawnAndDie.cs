@@ -4,41 +4,39 @@ using UnityEngine;
 
 public class SpawnAndDie : MonoBehaviour
 {
-    public ScriptableOBJ[] enemies; 
-    public Transform spawnPoint; 
+    public ScriptableOBJ[] enemies;
+    public Transform spawnPoint;
 
-    public float spawnInterval = 2f; 
-    private float timer;
-    public int count = 0;
-    public Transform finishPoint;
-    public int maxCount = 1;
-    public int ways = 5;
-    public double WayCoins;
-    private float WaySWaiter;
+    public float spawnInterval = 2f;
+    public int enemiesPerWave = 10;
+    public float timeBetweenWaves = 10f;
 
-    void Update()
+    private int spawnedInWave = 0;
+    private bool spawningWave = false;
+
+    void Start()
     {
-        if (count < maxCount)
-        {
-            timer += Time.deltaTime;
-            if (timer >= spawnInterval)
-            {
-            SpawnRandomEnemy();
-            timer = 0f;
-            }
-            
-        }
+        StartCoroutine(SpawnWaveRoutine());
+    }
 
-        else
+    IEnumerator SpawnWaveRoutine()
+    {
+        while (true)
         {
-            ways++;
-            WayCoins *= 1.5;
-            WaySWaiter += Time.deltaTime;
-            if (WaySWaiter >= 25)
-            {    
-                maxCount *= 2;
-                count = maxCount;
+            spawnedInWave = 0;
+            spawningWave = true;
+
+            while (spawnedInWave < enemiesPerWave)
+            {
+                SpawnRandomEnemy();
+                spawnedInWave++;
+                yield return new WaitForSeconds(spawnInterval);
             }
+
+            spawningWave = false;
+            yield return new WaitForSeconds(timeBetweenWaves);
+            enemiesPerWave = Mathf.CeilToInt(enemiesPerWave * 1.5f);
+            spawnInterval *= 0.9f;
         }
     }
 
@@ -46,8 +44,6 @@ public class SpawnAndDie : MonoBehaviour
     {
         int index = Random.Range(0, enemies.Length);
         ScriptableOBJ enemyData = enemies[index];
-
-        GameObject enemy = Instantiate(enemyData.prefab, spawnPoint.position, Quaternion.identity);
-        count--;
+        Instantiate(enemyData.prefab, spawnPoint.position, Quaternion.identity);
     }
 }

@@ -14,6 +14,7 @@ public class BulletScript : MonoBehaviour
                 enemy.EnemyHp -= 1;
                 if (enemy.EnemyHp <= 0)
                 {
+                    GameManager.instance.Coins += enemy.DropCoin;
                     Destroy(other.gameObject);
                 }
             }
