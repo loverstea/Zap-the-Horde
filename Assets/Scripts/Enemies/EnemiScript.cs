@@ -15,6 +15,10 @@ public class EnemiScript : MonoBehaviour
     private GameManager gameManager;
     
     public Image HpBar;
+
+    public float speed = 3.5f;
+    private float originalSpeed;
+
     private int currentIndex = 0;
 
     private float stopDistance = 0.3f;
@@ -26,6 +30,8 @@ public class EnemiScript : MonoBehaviour
 
     private void Start()
     {
+
+        originalSpeed = speed;
 
         gameManager = FindObjectOfType<GameManager>();
         gameManager = GameManager.instance;
@@ -43,6 +49,25 @@ public class EnemiScript : MonoBehaviour
         }
 
     }
+    
+    public void Slow(float slowAmount, float slowDuration)
+{
+    StopCoroutine("SlowCoroutine");
+    StartCoroutine(SlowCoroutine(slowAmount, slowDuration));
+}
+
+private IEnumerator SlowCoroutine(float slowAmount, float slowDuration)
+{
+    speed *= slowAmount;
+    if (navMeshAgent != null)
+        navMeshAgent.speed = speed;
+
+    yield return new WaitForSeconds(slowDuration);
+
+    speed = originalSpeed;
+    if (navMeshAgent != null)
+        navMeshAgent.speed = speed; 
+}
 
     void Update()
     {

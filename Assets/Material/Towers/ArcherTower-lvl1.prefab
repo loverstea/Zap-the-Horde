@@ -1915,9 +1915,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireRate: 1
-  attackRange: 10
+  attackRange: 12
   nextFire: 10
-  bulletDamage: 5
+  bulletDamage: 6
   RotatingPart: {fileID: 3383264456593257982}
   Arrow: {fileID: 2120326326513256696}
 --- !u!1 &4613230680152454581

@@ -1007,6 +1007,7 @@ GameObject:
   - component: {fileID: 3705929627619021188}
   - component: {fileID: 3243288723767543374}
   - component: {fileID: 4507598196706507008}
+  - component: {fileID: 7661106913811236963}
   m_Layer: 7
   m_Name: MagicTower-lvl1
   m_TagString: Tower
@@ -1117,6 +1118,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7661106913811236963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4045864072223361854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82da073accd7cf445aea5f8b8063ab8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireRate: 1
+  attackRange: 8
+  nextFire: 12
+  Damage: 3
 --- !u!1 &4131826016038883278
 GameObject:
   m_ObjectHideFlags: 0

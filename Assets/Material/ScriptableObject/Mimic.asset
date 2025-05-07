@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Mimic
   m_EditorClassIdentifier: 
   HP: 20
-  Attacka: 0
+  Attacka: 2
   prefab: {fileID: 2219292830553907877, guid: 6a4317fc729846d79f69cda980e03f9d, type: 3}
   Coins: 20
