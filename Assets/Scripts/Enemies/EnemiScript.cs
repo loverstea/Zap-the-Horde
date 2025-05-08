@@ -37,7 +37,6 @@ public class EnemiScript : MonoBehaviour
         gameManager = GameManager.instance;
         
         navMeshAgent = GetComponent<NavMeshAgent>();
-        navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
         if (gameManager.waypoints.Length > 0 )
         {
             navMeshAgent.SetDestination(gameManager.waypoints[currentIndex].position);

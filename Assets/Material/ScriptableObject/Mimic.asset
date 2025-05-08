@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 355240e5a7ba6ee4bb6dcc31eb253da3, type: 3}
   m_Name: Mimic
   m_EditorClassIdentifier: 
-  baseHp: 20
   HP: 20
   Attacka: 2
   prefab: {fileID: 2219292830553907877, guid: 6a4317fc729846d79f69cda980e03f9d, type: 3}
