@@ -84,23 +84,24 @@ public class PlayerMovement : MonoBehaviour
             transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
         }
 
-        if (Input.GetKey(KeyCode.M))
+        if (secondaryCamera != null && playerCamera != null)
         {
-        if (!isSecondaryCameraActive)
-        {
-            playerCamera.enabled = false;
-            secondaryCamera.enabled = true;
-            isSecondaryCameraActive = true;
+            if (Input.GetKey(KeyCode.M))
+            {
+                if (!secondaryCamera.enabled)
+                {
+                    playerCamera.enabled = false;
+                    secondaryCamera.enabled = true;
+                }
+            }
+            else
+            {
+                if (!playerCamera.enabled)
+                {
+                    playerCamera.enabled = true;
+                    secondaryCamera.enabled = false;
+                }
+            }
         }
-    }
-    else
-    {
-        if (isSecondaryCameraActive)
-        {
-            playerCamera.enabled = true;
-            secondaryCamera.enabled = false;
-            isSecondaryCameraActive = false;
-        }
-    }
     }
 }

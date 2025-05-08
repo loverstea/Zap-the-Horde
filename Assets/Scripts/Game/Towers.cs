@@ -18,6 +18,8 @@ public class Towers : MonoBehaviour
     public GameObject IceTowerLevel2Prefab;
     public GameObject IceTowerLevel3Prefab;
 
+    public GameObject CannonTowerPrefab;
+
     public AudioSource towerUpgradeSound;
     public AudioSource towerRemovalSound;
     public AudioSource towerSelectionSound;
@@ -28,6 +30,7 @@ public class Towers : MonoBehaviour
 
     public LayerMask gridLayerMask;
     public LayerMask invalidPlacementMask;
+    public LayerMask roadLayerMask;
 
     public List<Image> towerImages;
     private int selectedTowerIndex = -1;
@@ -55,6 +58,7 @@ public class Towers : MonoBehaviour
     public float areaOfAttackRadiusMagic = 8f;
     public float areaOfAttackRadiusIce = 6f;
 
+
     public Material greenTransparentMaterial;
     public Material yellowTransparentMaterial;
 
@@ -69,6 +73,7 @@ public class Towers : MonoBehaviour
     public int AtcherTowerCost = 100;
     public int MagicTowerCost = 200;
     public int IceTowerCost = 170;
+    public int CannonTowerCost = 300; 
 
     void Start()
     {
@@ -172,6 +177,10 @@ public class Towers : MonoBehaviour
         {
             SelectTower(IceTowerLevel1Prefab, 2);
         }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            SelectTower(CannonTowerPrefab, 3); 
+        }
 
         if (currentTower != null && !isBuildingTower)
         {
@@ -226,6 +235,10 @@ public class Towers : MonoBehaviour
         else if (currentTower != null && currentTower.name.Contains(IceTowerLevel1Prefab.name))
         {
             towerCost = IceTowerCost;
+        }
+        else if (currentTower != null && currentTower.name.Contains(CannonTowerPrefab.name))
+        {
+            towerCost = CannonTowerCost;
         }
 
         if (gameManager.Coins < towerCost)
@@ -336,7 +349,7 @@ public class Towers : MonoBehaviour
         }
     }
 
-    Vector3 FindNearestCell(Vector3 position)
+    public Vector3 FindNearestCell(Vector3 position)
     {
         Vector3 nearestCell = Vector3.zero;
         float minDistance = float.MaxValue;
