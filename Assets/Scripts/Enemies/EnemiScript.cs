@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class EnemiScript : MonoBehaviour
 {
@@ -12,47 +13,93 @@ public class EnemiScript : MonoBehaviour
     private NavMeshAgent navMeshAgent;
 
     private GameManager gameManager;
+    
+    public Image HpBar;
 
-    [SerializeField]
+    public float speed = 3.5f;
+    private float originalSpeed;
+
+    private int currentIndex = 0;
+
+    private float stopDistance = 0.3f;
     private int damage;
     [SerializeField]
-    private int Hp;
+    public int EnemyHp;
     [SerializeField]
-    private int DropCoin;
-
+    public int DropCoin;
 
     private void Start()
     {
+
+        originalSpeed = speed;
+
+        gameManager = FindObjectOfType<GameManager>();
+        gameManager = GameManager.instance;
+        
         navMeshAgent = GetComponent<NavMeshAgent>();
+        if (gameManager.waypoints.Length > 0 )
+        {
+            navMeshAgent.SetDestination(gameManager.waypoints[currentIndex].position);
+        }
         if (OBJ != null)
         {
             DropCoin = OBJ.Coins;
-            Hp = OBJ.HP;
+            EnemyHp = OBJ.HP;
             damage = OBJ.Attacka;
         }
-        gameManager = GameManager.instance;
 
     }
+    
+    public void Slow(float slowAmount, float slowDuration)
+{
+    StopCoroutine("SlowCoroutine");
+    StartCoroutine(SlowCoroutine(slowAmount, slowDuration));
+}
+
+private IEnumerator SlowCoroutine(float slowAmount, float slowDuration)
+{
+    speed *= slowAmount;
+    if (navMeshAgent != null)
+        navMeshAgent.speed = speed;
+
+    yield return new WaitForSeconds(slowDuration);
+
+    speed = originalSpeed;
+    if (navMeshAgent != null)
+        navMeshAgent.speed = speed; 
+}
 
     void Update()
     {
-        if (navMeshAgent != null)
+        
+        if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= stopDistance)
         {
-            navMeshAgent.SetDestination(gameManager.transform.position);
-        }
-        if (Hp <= 0)
-        {
-            gameManager.Coins += DropCoin;  
-            Object.Destroy(gameObject);
-        }
+            if (gameManager.waypoints.Length > currentIndex + 1)
+            {
+                currentIndex++;
+                navMeshAgent.SetDestination(gameManager.waypoints[currentIndex].position);
+            }
+
+    if (EnemyHp <= 0)
+    {
+        if (gameManager != null)
+            gameManager.Coins += DropCoin;
+        Destroy(gameObject);
     }
+    }
+    }
+    public float GetProgress()
+    {
+
+    return currentIndex + (1f - Mathf.Clamp01(navMeshAgent.remainingDistance / navMeshAgent.stoppingDistance));
+   }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             Attack();
-            Hp = 0;
+            Destroy(gameObject);
         }
     }
 

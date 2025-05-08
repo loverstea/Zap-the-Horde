@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Towers : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class Towers : MonoBehaviour
     public AudioSource towerSelectionSound;
     public AudioSource TowerCancelSound;
 
+    private GameManager gameManager;
     public Transform playerTransform;
 
     public LayerMask gridLayerMask;
@@ -31,7 +33,7 @@ public class Towers : MonoBehaviour
     private int selectedTowerIndex = -1;
 
     private GameObject currentTower;
-    
+
     public GameObject Drawning;
     private Camera mainCamera;
 
@@ -47,7 +49,14 @@ public class Towers : MonoBehaviour
     public GameObject placementIndicatorPrefab;
     private GameObject placementIndicator;
 
+    public GameObject AreaofAttackPrefab;
+    private GameObject currentAreaOfAttack;
+    public float areaOfAttackRadiusArcher = 12f;
+    public float areaOfAttackRadiusMagic = 8f;
+    public float areaOfAttackRadiusIce = 6f;
+
     public Material greenTransparentMaterial;
+    public Material yellowTransparentMaterial;
 
     private bool isBuildingTower = false;
 
@@ -57,8 +66,14 @@ public class Towers : MonoBehaviour
     private Vector3 lastCameraPosition;
     private Vector3 currentCellPosition;
 
+    public int AtcherTowerCost = 100;
+    public int MagicTowerCost = 200;
+    public int IceTowerCost = 170;
+
     void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
+
         Drawning.SetActive(false);
         mainCamera = Camera.main;
         GenerateCells();
@@ -96,6 +111,11 @@ public class Towers : MonoBehaviour
             ResetBuildMode();
 
             Drawning.SetActive(false);
+            if (currentAreaOfAttack != null)
+            {
+                Destroy(currentAreaOfAttack);
+                currentAreaOfAttack = null;
+            }
             if (currentTower != null)
             {
                 Destroy(currentTower);
@@ -117,6 +137,11 @@ public class Towers : MonoBehaviour
         {
             ResetBuildMode();
 
+            if (currentAreaOfAttack != null)
+            {
+                Destroy(currentAreaOfAttack);
+                currentAreaOfAttack = null;
+            }
             if (currentTower != null)
             {
                 Destroy(currentTower);
@@ -157,40 +182,92 @@ public class Towers : MonoBehaviour
             {
                 currentTower.SetActive(false);
                 placementIndicator.SetActive(false);
+                if (currentAreaOfAttack != null)
+                    currentAreaOfAttack.SetActive(false); // только скрыть!
             }
             else
             {
                 placementIndicator.SetActive(true);
                 currentTower.SetActive(true);
+                if (currentAreaOfAttack != null)
+                    currentAreaOfAttack.SetActive(true);
             }
+        }
+        else
+        {
+            if (currentAreaOfAttack != null)
+                currentAreaOfAttack.SetActive(false); // только скрыть!
         }
 
         if (Input.GetMouseButtonDown(0) && currentTower != null && canPlaceTower && !isBuildingTower)
         {
             StartCoroutine(BuildTowerWithDelay());
+            if (currentAreaOfAttack != null)
+            {
+                Destroy(currentAreaOfAttack);
+                currentAreaOfAttack = null;
+            }
+            Drawning.SetActive(false);
         }
     }
 
-        IEnumerator BuildTowerWithDelay()
+    IEnumerator BuildTowerWithDelay()
     {
+        int towerCost = 0;
+
+        if (currentTower != null && currentTower.name.Contains(archerTowerLevel1Prefab.name))
+        {
+            towerCost = AtcherTowerCost;
+        }
+        else if (currentTower != null && currentTower.name.Contains(magicTowerLevel1Prefab.name))
+        {
+            towerCost = MagicTowerCost;
+        }
+        else if (currentTower != null && currentTower.name.Contains(IceTowerLevel1Prefab.name))
+        {
+            towerCost = IceTowerCost;
+        }
+
+        if (gameManager.Coins < towerCost)
+        {
+            yield break;
+        }
+
         if (buildProgressBar != null)
         {
             buildProgressBar.gameObject.SetActive(true);
             buildProgressBarImage.gameObject.SetActive(true);
             buildProgressBar.fillAmount = 1f;
         }
-    
+
         float buildTime = 3f;
         float elapsedTime = 0f;
-    
+
+        if (currentTower == null)
+        {
+            yield break;
+        }
+
         currentCellPosition = FindNearestCell(currentTower.transform.position);
         Vector3 initialCameraCell = FindNearestCell(mainCamera.transform.position);
-    
+
         while (elapsedTime < buildTime)
         {
+            if (currentTower == null)
+            {
+                if (buildProgressBar != null)
+                {
+                    buildProgressBar.fillAmount = 0f;
+                    buildProgressBar.gameObject.SetActive(false);
+                    buildProgressBarImage.gameObject.SetActive(false);
+                }
+                isBuildingTower = false;
+                yield break;
+            }
+
             Vector3 newCellPosition = FindNearestCell(currentTower.transform.position);
             Vector3 currentCameraCell = FindNearestCell(mainCamera.transform.position);
-    
+
             if (newCellPosition != currentCellPosition || currentCameraCell != initialCameraCell)
             {
                 if (buildProgressBar != null)
@@ -202,7 +279,7 @@ public class Towers : MonoBehaviour
                 isBuildingTower = false;
                 yield break;
             }
-    
+
             elapsedTime += Time.deltaTime;
             if (buildProgressBar != null)
             {
@@ -210,17 +287,16 @@ public class Towers : MonoBehaviour
             }
             yield return null;
         }
-    
+
         if (buildProgressBar != null)
         {
             buildProgressBar.fillAmount = 0f;
             buildProgressBar.gameObject.SetActive(false);
             buildProgressBarImage.gameObject.SetActive(false);
         }
-        
-        buildProgressBar.fillAmount = 0f;
-        buildProgressBar.gameObject.SetActive(false);
-        buildProgressBarImage.gameObject.SetActive(false);
+
+        gameManager.Coins -= towerCost;
+
         PlaceTower();
         isBuildingTower = false;
     }
@@ -254,9 +330,9 @@ public class Towers : MonoBehaviour
             currentTower.transform.position = nearestCellPosition;
 
             if (placementIndicator != null)
-            {
                 placementIndicator.transform.position = nearestCellPosition;
-            }
+            if (currentAreaOfAttack != null)
+                currentAreaOfAttack.transform.position = nearestCellPosition;
         }
     }
 
@@ -387,6 +463,12 @@ public class Towers : MonoBehaviour
             Destroy(placementIndicator);
         }
 
+        if (currentAreaOfAttack != null)
+        {
+            Destroy(currentAreaOfAttack);
+            currentAreaOfAttack = null;
+        }
+
         currentTower = null;
     }
 
@@ -400,8 +482,11 @@ public class Towers : MonoBehaviour
             selectedTowerIndex = -1;
             Destroy(currentTower);
             if (placementIndicator != null)
-            {
                 Destroy(placementIndicator);
+            if (currentAreaOfAttack != null)
+            {
+                Destroy(currentAreaOfAttack);
+                currentAreaOfAttack = null;
             }
             return;
         }
@@ -418,12 +503,31 @@ public class Towers : MonoBehaviour
         }
 
         if (currentTower != null)
-        {
             Destroy(currentTower);
+        if (currentAreaOfAttack != null)
+        {
+            Destroy(currentAreaOfAttack);
+            currentAreaOfAttack = null;
         }
 
         currentTower = Instantiate(towerPrefab);
         currentTower.GetComponent<Collider>().enabled = false;
+
+        float radius = 3f;
+        if (imageIndex == 0)
+            radius = areaOfAttackRadiusArcher;
+        else if (imageIndex == 1)
+            radius = areaOfAttackRadiusMagic;
+        else if (imageIndex == 2)
+            radius = areaOfAttackRadiusIce;
+
+        currentAreaOfAttack = Instantiate(AreaofAttackPrefab);
+        currentAreaOfAttack.transform.position = currentTower.transform.position;
+        currentAreaOfAttack.transform.localScale = new Vector3(radius * 2, 0.5f, radius * 2);
+
+        Renderer rend = currentAreaOfAttack.GetComponent<Renderer>();
+        if (rend != null && yellowTransparentMaterial != null)
+            rend.material = yellowTransparentMaterial;
 
         if (placementIndicator == null)
         {
@@ -438,6 +542,27 @@ public class Towers : MonoBehaviour
         towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 230f / 255f);
         towerImage.rectTransform.sizeDelta = new Vector2(300, 300);
         Drawning.SetActive(true);
+
+        if (currentAreaOfAttack == null && currentTower != null)
+        {
+            float radius = 3f;
+            if (index == 0)
+                radius = areaOfAttackRadiusArcher;
+            else if (index == 1)
+                radius = areaOfAttackRadiusMagic;
+            else if (index == 2)
+                radius = areaOfAttackRadiusIce;
+
+            currentAreaOfAttack = Instantiate(AreaofAttackPrefab);
+            currentAreaOfAttack.transform.position = currentTower.transform.position;
+            currentAreaOfAttack.transform.localScale = new Vector3(radius * 2, 0.5f, radius * 2);
+
+            Renderer rend = currentAreaOfAttack.GetComponent<Renderer>();
+            if (rend != null && yellowTransparentMaterial != null)
+                rend.material = yellowTransparentMaterial;
+        }
+        if (currentAreaOfAttack != null)
+            currentAreaOfAttack.SetActive(true);
         towerSelectionSound.Play();
     }
 
@@ -447,17 +572,30 @@ public class Towers : MonoBehaviour
         towerImage.color = new Color(towerImage.color.r, towerImage.color.g, towerImage.color.b, 130f / 255f);
         towerImage.rectTransform.sizeDelta = new Vector2(250, 250);
         Drawning.SetActive(false);
+        if (currentAreaOfAttack != null)
+        {
+            Destroy(currentAreaOfAttack);
+            currentAreaOfAttack = null;
+        }
         towerSelectionSound.Play();
     }
-    void ResetBuildMode()
-{
-    if (buildProgressBar != null)
-    {
-        buildProgressBar.fillAmount = 0f;
-        buildProgressBar.gameObject.SetActive(false);
-        buildProgressBarImage.gameObject.SetActive(false);
-    }
 
-    isBuildingTower = false;
-}
+    void ResetBuildMode()
+    {
+        if (buildProgressBar != null)
+        {
+            buildProgressBar.fillAmount = 0f;
+            buildProgressBar.gameObject.SetActive(false);
+            buildProgressBarImage.gameObject.SetActive(false);
+        }
+
+        isBuildingTower = false;
+
+        if (currentAreaOfAttack != null)
+        {
+            Destroy(currentAreaOfAttack);
+            currentAreaOfAttack = null;
+        }
+        Drawning.SetActive(false);
+    }
 }

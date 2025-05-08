@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 355240e5a7ba6ee4bb6dcc31eb253da3, type: 3}
   m_Name: Bacteria
   m_EditorClassIdentifier: 
-  HP: 5
-  Attacka: 2
+  HP: 10
+  Attacka: 1
   prefab: {fileID: 4530003306004163418, guid: a281aaaef0214dbbb7a0c5e5d4d370d1, type: 3}
   Coins: 10

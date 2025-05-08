@@ -4,50 +4,56 @@ using UnityEngine;
 
 public class SpawnAndDie : MonoBehaviour
 {
-    public ScriptableOBJ[] enemies; 
-    public Transform spawnPoint; 
+    private EnemiScript enemyScript;
+    public float morehp = 1.5f; 
 
-    public float spawnInterval = 2f; 
-    private float timer;
-    public int count = 0;
-    public Transform finishPoint;
-    public int maxCount = 10;
-    public int ways = 1;
-    public double WayCoins;
-    private float WaySWaiter;
+    public ScriptableOBJ[] enemies;
+    public Transform spawnPoint;
 
-    void Update()
+    public float spawnInterval = 2f;
+    public int enemiesPerWave = 10;
+    public float timeBetweenWaves = 10f;
+
+    private int spawnedInWave = 0;
+    private bool spawningWave = false;
+
+    void Start()
     {
-        if (count > 0)
-        {
-        timer += Time.deltaTime;
-        if (timer >= spawnInterval)
-        {
-            SpawnRandomEnemy();
-            timer = 0f;
-        }
-            
-        }
+        StartCoroutine(SpawnWaveRoutine());
+    }
 
-        if (count <= 0)
+    IEnumerator SpawnWaveRoutine()
+    {
+        while (true)
         {
-            ways++;
-            WayCoins *= 1.5;
-            WaySWaiter += Time.deltaTime;
-            if (WaySWaiter >= 25)
-            {    
-                maxCount *= 2;
-                count = maxCount;
+            spawnedInWave = 0;
+            spawningWave = true;
+
+            while (spawnedInWave < enemiesPerWave)
+            {
+                SpawnRandomEnemy();
+                spawnedInWave++;
+                yield return new WaitForSeconds(spawnInterval);
             }
+
+            spawningWave = false;
+            yield return new WaitForSeconds(timeBetweenWaves);
+            enemiesPerWave = Mathf.CeilToInt(enemiesPerWave * 1.5f);
+            morehp *= 2f;
+            spawnInterval *= 0.9f;
         }
     }
 
     void SpawnRandomEnemy()
-    {
-        int index = Random.Range(0, enemies.Length);
-        ScriptableOBJ enemyData = enemies[index];
+{
+    int index = Random.Range(0, enemies.Length);
+    ScriptableOBJ enemyData = enemies[index];
+    GameObject enemyObj = Instantiate(enemyData.prefab, spawnPoint.position, Quaternion.identity);
+    EnemiScript enemyScript = enemyObj.GetComponent<EnemiScript>();
 
-        GameObject enemy = Instantiate(enemyData.prefab, spawnPoint.position, Quaternion.identity);
-        count--;
+    if (enemyScript != null)
+    {
+        enemyScript.EnemyHp = Mathf.CeilToInt(enemyData.HP * morehp);
     }
+}
 }
