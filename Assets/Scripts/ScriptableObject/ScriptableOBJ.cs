@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
