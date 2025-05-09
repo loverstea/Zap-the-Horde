@@ -47,19 +47,13 @@ public class Gendolf : MonoBehaviour
                     break;
                 case 5:
                     Text.text = "Бажаю вдачі тобі мандрівнику, \r\nНадіюсь ти зможеш спасти Гризоплавію від цих скажених монстрів";
+                    Triger++;
+                    break;
+                case 6:
+                    Tutorial.SetActive(false);
                     break;
 
-
-
-
-
-
-
-
-            }       
-                
-            
-            
+            }             
         }
     }
 }
