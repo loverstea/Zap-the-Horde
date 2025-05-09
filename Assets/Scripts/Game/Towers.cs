@@ -83,6 +83,28 @@ public class Towers : MonoBehaviour
         mainCamera = Camera.main;
         GenerateCells();
 
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.ToLower().Contains("Tutorial"))
+        {
+            if (magicTowerLevel1Prefab != null) magicTowerLevel1Prefab.SetActive(false);
+            if (magicTowerLevel2Prefab != null) magicTowerLevel2Prefab.SetActive(false);
+            if (magicTowerLevel3Prefab != null) magicTowerLevel3Prefab.SetActive(false);
+
+            if (IceTowerLevel1Prefab != null) IceTowerLevel1Prefab.SetActive(false);
+            if (IceTowerLevel2Prefab != null) IceTowerLevel2Prefab.SetActive(false);
+            if (IceTowerLevel3Prefab != null) IceTowerLevel3Prefab.SetActive(false);
+
+            if (CannonTowerPrefab != null) CannonTowerPrefab.SetActive(false);
+
+            if (towerImages != null)
+            {
+                for (int i = 1; i < towerImages.Count; i++)
+                {
+                    if (towerImages[i] != null)
+                        towerImages[i].gameObject.SetActive(false);
+                }
+            }
+        }
+
         Collider[] roadColliders = Physics.OverlapBox(
             (topLeftCorner + bottomRightCorner) / 2,
             (bottomRightCorner - topLeftCorner) / 2,
