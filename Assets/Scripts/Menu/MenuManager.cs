@@ -10,6 +10,8 @@ public class MenuManager : MonoBehaviour
 
     void Start()
     {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         settingsPanel.SetActive(false);
         LevelsMenuPanel.SetActive(false); 
         MainMenuPanel.SetActive(true);
