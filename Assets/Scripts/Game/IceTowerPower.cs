@@ -6,10 +6,11 @@ using UnityEngine.UI;
 public class IceTowerPower : MonoBehaviour
 {
     public Image IcePowerImage;
+    public Image IcePowerUI;
     public Image IcePowerImageCooldown;
     public float cooldownTime = 20f;
-    public float slowDuration = 3f;
-    public float slowAmount = 0.5f;
+    public float slowDuration = 5f;
+    public float slowAmount = 0.1f;
 
     private bool canUsePower = false;
     private bool isCooldown = false;
@@ -17,17 +18,31 @@ public class IceTowerPower : MonoBehaviour
     void Start()
     {
         IcePowerImage.gameObject.SetActive(false);
+        IcePowerUI.gameObject.SetActive(false);
         IcePowerImageCooldown.fillAmount = 0f;
     }
+
     void Update()
     {
-        if (!canUsePower && FindIceTowerLevel3())
+        bool hasIceTower = FindIceTowerLevel3();
+
+        if (!canUsePower && hasIceTower)
         {
             IcePowerImage.gameObject.SetActive(true);
             canUsePower = true;
         }
 
-        if (canUsePower && !isCooldown && Input.GetKeyDown(KeyCode.G))
+        if (canUsePower && !hasIceTower)
+        {
+            IcePowerImage.gameObject.SetActive(false);
+            IcePowerUI.gameObject.SetActive(false);
+            IcePowerImageCooldown.fillAmount = 0f;
+            canUsePower = false;
+            isCooldown = false;
+            StopAllCoroutines();
+        }
+
+        if (canUsePower && !isCooldown && hasIceTower && Input.GetKeyDown(KeyCode.G))
         {
             StartCoroutine(UseIcePower());
         }
@@ -49,6 +64,9 @@ public class IceTowerPower : MonoBehaviour
         isCooldown = true;
         IcePowerImage.fillAmount = 1f;
 
+
+        IcePowerUI.gameObject.SetActive(true);
+
         EnemiScript[] allEnemies = FindObjectsOfType<EnemiScript>();
         foreach (var enemy in allEnemies)
         {
@@ -56,6 +74,14 @@ public class IceTowerPower : MonoBehaviour
         }
 
         float elapsed = 0f;
+        while (elapsed < slowDuration)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        IcePowerUI.gameObject.SetActive(false);
+
+        elapsed = 0f;
         while (elapsed < cooldownTime)
         {
             elapsed += Time.deltaTime;

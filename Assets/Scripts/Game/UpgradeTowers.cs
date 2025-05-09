@@ -43,6 +43,7 @@ public class TowerMenu : MonoBehaviour
 
         TowersMenu.SetActive(false);
         TowerUI.SetActive(false);
+        CannonattackImage.gameObject.SetActive(false);
         if (CannonattackImage != null)
             CannonattackImage.gameObject.SetActive(false);
 
@@ -261,6 +262,14 @@ public class TowerMenu : MonoBehaviour
                 if (rend != null && towersScript.yellowTransparentMaterial != null)
                     rend.material = towersScript.yellowTransparentMaterial;
                 area.SetActive(true);
+            }
+
+
+            if (towersScript != null && towersScript.CannonTowerPrefab != null &&
+                !currentTower.name.Contains(towersScript.CannonTowerPrefab.name))
+            {
+                if (CannonattackImage != null)
+                    CannonattackImage.gameObject.SetActive(false);
             }
 
             if (towersScript != null && currentTower != null && towersScript.CannonTowerPrefab != null &&

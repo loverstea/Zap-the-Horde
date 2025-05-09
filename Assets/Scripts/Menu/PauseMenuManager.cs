@@ -19,6 +19,7 @@ public class PauseMenuManager : MonoBehaviour
 
     void Start()
     {
+        ResumeGame();
         PauseMenu.SetActive(false);
     }
     void Update()

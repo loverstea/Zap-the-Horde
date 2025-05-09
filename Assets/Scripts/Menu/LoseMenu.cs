@@ -8,6 +8,7 @@ using TMPro;
 public class LoseMenu : MonoBehaviour
 {
     public GameObject loseMenu;
+    public PlayerMovement playerMovement;
 
     void Start()
     {
@@ -16,6 +17,8 @@ public class LoseMenu : MonoBehaviour
 
     public void OnRestartButtonClick()
     {
+        Time.timeScale = 1f;
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     public void OnMenuButtonClick()
